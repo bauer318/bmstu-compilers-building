@@ -118,7 +118,7 @@ public class RegexRecognizer {
                 && currentSymbol != '|' && currentSymbol != '.' && currentSymbol != '+';
     }
 
-    private static NFA regexToNfa(String regex) {
+    public static NFA regexToNfa(String regex) {
         regex = FAUtils.normalizeInputRegex(regex);
         Stack<Character> operators = new Stack<>();
         Stack<NFA> operands = new Stack<>();
@@ -192,7 +192,7 @@ public class RegexRecognizer {
         return operands.peek();//Return the single entity. operands.poll() is also fine
     }
 
-    private static DFA nfaToDfa(NFA nfa) {
+    public static DFA nfaToDfa(NFA nfa) {
         DFA dfa = new DFA();
         ArrayList<Integer> start = new ArrayList<>();
         start.add(0);

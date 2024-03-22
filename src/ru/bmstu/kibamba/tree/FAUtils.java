@@ -14,7 +14,7 @@ public class FAUtils {
         return ss.toString();
     }
 
-    private static boolean isInputCharacter(char charAt) {
+    public static boolean isInputCharacter(char charAt) {
         return charAt == 'a' || charAt == 'b' || charAt == 'e';
     }
 
