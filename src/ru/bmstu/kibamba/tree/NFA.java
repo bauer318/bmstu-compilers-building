@@ -38,17 +38,13 @@ public class NFA {
         return this.transitions;
     }
 
-
     public void display() {
         for (Transition temp : transitions) {
-            System.out.println("q" + temp.getFromState() + " -> q" + temp.getToState() + " : Symbol - " + temp.getSymbol());
+            System.out.println("q" + temp.getFromState() + " " + temp.getSymbol() + " --> q" + temp.getToState());
         }
         System.out.println("The final state is q" + getFinalState());
     }
 
-    /**
-     * Get the set of reachable state from each specified states.
-     */
     public ArrayList<Character> findPossibleInputSymbols(ArrayList<Integer> states) {
         ArrayList<Character> result = new ArrayList<>();
         for (int stateFrom : states) {

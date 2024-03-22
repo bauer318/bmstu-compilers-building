@@ -232,12 +232,15 @@ public class RegexRecognizer {
         System.out.println("\nDFA :");
         DFA requiredDfa = nfaToDfa(requiredNfa);
         requiredDfa.display();
+        DFA requiredMinDfa = DFAMinimizer.minimization(requiredDfa);
+        System.out.println("\nmin DFA :");
+        requiredMinDfa.displayMinDFA();
         String eval;
         do {
             System.out.println("Enter string to evaluate " + regex + " or tap 0 to stop");
             eval = new Scanner(System.in).next();
             if (!eval.equals("0")) {
-                if (requiredDfa.evaluate(eval)) {
+                if (requiredMinDfa.evaluate(eval)) {
                     System.out.println(eval + " is accepted by regex " + regex);
                 } else {
                     System.out.println(eval + " is rejected by regex " + regex);

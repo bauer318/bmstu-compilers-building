@@ -63,65 +63,50 @@ public class DFA {
         }
     }
 
-    String getFinalState() {
-        return FAUtils.join(finalStates, ",");
+    public void setMinDfaFinalState(int minDfaFinalState) {
+        this.finalStates.add(minDfaFinalState);
     }
 
-    void setTransition(int vertex_from, int vertex_to, char symbol) {
-        Transition new_trans = new Transition(vertex_from, vertex_to, symbol);
-        transitions.add(new_trans);
+    public void setTransition(int fromState, int toState, char symbol) {
+        Transition newTransition = new Transition(fromState, toState, symbol);
+        transitions.add(newTransition);
     }
 
     public ArrayList<Integer> getFinalStates() {
         return finalStates;
     }
 
-    void display() {
-        Transition newTransition;
+    public void display() {
         System.out.println();
         for (Transition transition : transitions) {
-            newTransition = transition;
-            System.out.println("q" + newTransition.getFromState() + " {" + FAUtils.join(entries.get(newTransition.getFromState()), ",")
-                    + "} -> q" + newTransition.getToState() + " {" + FAUtils.join(entries.get(newTransition.getToState()), ",")
-                    + "} : Symbol - " + newTransition.getSymbol());
+            System.out.println("q" + transition.getFromState() + " {" + FAUtils.join(entries.get(transition.getFromState()), ",")
+                    + "} " + transition.getSymbol() + " --> q" + transition.getToState() + " {" + FAUtils.join(entries.get(transition.getToState()), ",")
+                    + "}");
         }
-        System.out.println("The final state is q : " + FAUtils.join(finalStates, ","));
+        System.out.println("The final states are q : " + FAUtils.join(finalStates, ","));
     }
 
-    void showTransitions() {
+    public void displayMinDFA() {
+        System.out.println();
         for (Transition transition : transitions) {
-            System.out.println(transition.getFromState() + "," + transition.getToState() + "," + transition.getSymbol());
+            var printStr = "q" + transition.getFromState() + " " + transition.getSymbol() + " --> q" + transition.getToState();
+            if (finalStates.contains(transition.getToState())) {
+                printStr = printStr.concat(" final state ");
+            }
+            System.out.println(printStr);
         }
     }
 
-    void showEntries() {
-        for (ArrayList<Integer> entry : entries) {
-            for (Integer integer : entry) System.out.print(integer + ",");
-            System.out.println();
-        }
-    }
-
-    void showFinal() {
-        for (Integer finalState : finalStates) {
-            System.out.println(finalState);
-        }
-    }
-
-    boolean evaluate(String x)//Evaluates the string
-    {
-        int i, l = x.length(), j;
+    public boolean evaluate(String x) {
         int state = 0;
-        for (i = 0; i < l; i++) {
+        for (var i = 0; i < x.length(); i++) {
             char ch = x.charAt(i);
-            for (j = 0; j < transitions.size(); j++) {
-                Transition t = transitions.get(j);
-                if (t.getFromState() == state && t.getSymbol() == ch) {
-                    state = t.getToState();
+            for (Transition transition : transitions) {
+                if (transition.getFromState() == state && transition.getSymbol() == ch) {
+                    state = transition.getToState();
                     break;
                 }
             }
-            if (j == transitions.size())
-                return false;
         }
         return finalStates.contains(state);
     }
@@ -131,24 +116,25 @@ public class DFA {
     }
 
     public int countStates() {
-        var fromState = new HashSet<Integer>();
+        var stateCount = new HashSet<Integer>();
         for (Transition transition : this.transitions) {
-            fromState.add(transition.getFromState());
+            stateCount.add(transition.getFromState());
+            stateCount.add(transition.getToState());
         }
-        return fromState.size();
+        return stateCount.size();
     }
 
-    public Set<Integer> getAllStateTo(int to, char c) {
+    public Set<Integer> getAllStatesToBySymbol(int to, char symbol) {
         Set<Integer> result = new HashSet<>();
         for (Transition transition : this.transitions) {
-            if (transition.getToState() == to && transition.getSymbol() == c) {
+            if (transition.getToState() == to && transition.getSymbol() == symbol) {
                 result.add(transition.getFromState());
             }
         }
         return result;
     }
 
-    private Set<Integer> getStatesFrom(int from) {
+    private Set<Integer> getAllStatesFrom(int from) {
         Set<Integer> result = new HashSet<>();
         for (Transition transition : this.transitions) {
             if (transition.getFromState() == from) {
@@ -161,14 +147,14 @@ public class DFA {
     private Set<Integer> getStatesFromStartSet(Set<Integer> fromStart) {
         var result = new HashSet<Integer>();
         for (Integer i : fromStart) {
-            result.addAll(getStatesFrom(i));
+            result.addAll(getAllStatesFrom(i));
         }
         return result;
     }
 
     public Set<Integer> getReachableStatesFromStart() {
         var start = 0;
-        var fromStart = getStatesFrom(start);
+        var fromStart = getAllStatesFrom(start);
         Set<Integer> result = new HashSet<>(fromStart);
 
         Set<Integer> temp = new HashSet<>(result);
