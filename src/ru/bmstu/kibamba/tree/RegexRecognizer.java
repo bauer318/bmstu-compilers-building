@@ -3,68 +3,119 @@ package ru.bmstu.kibamba.tree;
 import java.util.*;
 
 public class RegexRecognizer {
+    //a.b
     private static NFA concat(NFA a, NFA b) {
         NFA result = new NFA();
-        result.setStates(a.getStatesCount() + b.getStatesCount());//No new vertex added in concatenation
-        int i;
-        Transition newTransition;
-        for (i = 0; i < a.getTransitions().size(); i++) {
-            newTransition = a.getTransitions().get(i);
-            result.addTransition(newTransition.getFromState(), newTransition.getToState(), newTransition.getSymbol());//Copy old transitions
+        //No new state added in concatenation
+        result.setStates(a.getStatesCount() + b.getStatesCount());
+
+        //Copy all old transitions of a
+        for (Transition transition : a.getTransitions()) {
+            result.addTransition(transition.getFromState(), transition.getToState(), transition.getSymbol());
         }
-        result.addTransition(a.getFinalState(), a.getStatesCount(), '^');//Creating the link; final state of a will link to initial state of b
-        for (i = 0; i < b.getTransitions().size(); i++) {
-            newTransition = b.getTransitions().get(i);
-            result.addTransition(newTransition.getFromState() + a.getStatesCount(), newTransition.getToState() + a.getStatesCount(), newTransition.getSymbol());//Copy old transitions wit offset as a's vertices have already been added
+
+        //Creating the link; final state of a will link to initial state of b
+        result.addTransition(a.getFinalState(), a.getStatesCount(), 'e');
+
+        //Copy all old transitions of b with offset as a's states have already been added
+        var offset = a.getStatesCount();
+        for (Transition transition : b.getTransitions()) {
+            result.addTransition(transition.getFromState() + offset, transition.getToState() + offset, transition.getSymbol());
         }
-        result.setFinalState(a.getStatesCount() + b.getStatesCount() - 1);//Mark b's final as final in new one too
+
+        //b is the final state of this created NFA
+        result.setFinalState(offset + b.getStatesCount() - 1);
         return result;
     }
 
+    //a*
     private static NFA kleene(NFA a) {
-        NFA result = new NFA();
-        int i;
-        Transition newTransition;
-        result.setStates(a.getStatesCount() + 2);
-        result.addTransition(0, 1, '^');//Epsilon transition from S0 to S1
-        for (i = 0; i < a.getTransitions().size(); i++) {
-            newTransition = a.getTransitions().get(i);
-            result.addTransition(newTransition.getFromState() + 1, newTransition.getToState() + 1, newTransition.getSymbol());//Copy old transitions
-        }
-        result.addTransition(a.getStatesCount(), a.getStatesCount() + 1, '^');//Epsilon transition to new final state
-        result.addTransition(a.getStatesCount(), 1, '^');//Reverse epsilon transition
-        result.addTransition(0, a.getStatesCount() + 1, '^');//Forward total epsilon transition
-        result.setFinalState(a.getStatesCount() + 1);//Mark final state
+        NFA result = addStateBefore(a);
+
+        var oldFinalState = a.getStatesCount();
+        var oldInitialState = 1;
+        var newInitialState = 0;
+        var newFinalState = oldFinalState + 1;
+
+        //Epsilon transition to new final state
+        result.addTransition(oldFinalState, newFinalState, 'e');
+        //Reverse epsilon transition
+        result.addTransition(oldFinalState, oldInitialState, 'e');
+        //Forward total epsilon transition
+        result.addTransition(newInitialState, newFinalState, 'e');
+        //Mark final state
+        result.setFinalState(newFinalState);
+
         return result;
     }
 
+    //a+
+    private static NFA plus(NFA a) {
+        NFA result = addStateBefore(a);
+        var oldFinalState = a.getStatesCount();
+        var oldInitialState = 1;
+        var newFinalState = oldFinalState + 1;
+
+        //Epsilon transition to new final state
+        result.addTransition(oldFinalState, newFinalState, 'e');
+        //Reverse epsilon transition
+        result.addTransition(oldFinalState, oldInitialState, 'e');
+        //Mark final state
+        result.setFinalState(newFinalState);
+
+        return result;
+    }
+
+    //s0->s1 as result s0->s1->s2 , where s0->s1 epsilon's transition
+    private static NFA addStateBefore(NFA a) {
+        NFA result = new NFA();
+
+        /*
+         * +2 because we will have one new initial state with epsilon transition to a's initial
+         * and one new final state with epsilon transition from a's final state and from the new initial created
+         */
+        result.setStates(a.getStatesCount() + 2);
+
+        result.addTransition(0, 1, 'e');
+
+        for (Transition transition : a.getTransitions()) {
+            result.addTransition(transition.getFromState() + 1, transition.getToState() + 1, transition.getSymbol());
+        }
+
+        return result;
+    }
+
+    //a|b
     private static NFA orSelection(ArrayList<NFA> selections, int noOfSelections) {
         NFA result = new NFA();
-        int vertexCount = 2;
-        int i, j;
-        NFA med;
-        Transition newTransition;
-        for (i = 0; i < noOfSelections; i++) {
-            vertexCount += selections.get(i).getStatesCount();//Find total vertices by summing all NFAs
+        var stateCount = 2;
+
+        //Find total states by summing all NFAs
+        for (var i = 0; i < noOfSelections; i++) {
+            stateCount += selections.get(i).getStatesCount();
         }
-        result.setStates(vertexCount);
-        int adderTrack = 1;
-        for (i = 0; i < noOfSelections; i++) {
-            result.addTransition(0, adderTrack, '^');//Initial epsilon transition to the first block of 'OR'
-            med = selections.get(i);
-            for (j = 0; j < med.getTransitions().size(); j++) {
-                newTransition = med.getTransitions().get(j);
-                result.addTransition(newTransition.getFromState() + adderTrack, newTransition.getToState() + adderTrack, newTransition.getSymbol());//Copy all transitions in first NFA
+        result.setStates(stateCount);
+        var adderTrack = 1;
+        for (var i = 0; i < noOfSelections; i++) {
+            //Initial epsilon transition to the first block of 'OR'
+            result.addTransition(0, adderTrack, 'e');
+
+            NFA selectedNFA = selections.get(i);
+            for (Transition transition : selectedNFA.getTransitions()) {
+                result.addTransition(transition.getFromState() + adderTrack, transition.getToState() + adderTrack, transition.getSymbol());
             }
-            adderTrack += med.getStatesCount();//Find how many vertices added
-            result.addTransition(adderTrack - 1, vertexCount - 1, '^');//Add epsilon transition to final state
+            adderTrack += selectedNFA.getStatesCount();
+
+            //Add epsilon transition to final state
+            result.addTransition(adderTrack - 1, stateCount - 1, 'e');
         }
-        result.setFinalState(vertexCount - 1);//Mark final state
+        result.setFinalState(stateCount - 1);
         return result;
     }
 
     private static boolean isNotOperator(char currentSymbol) {
-        return currentSymbol != '(' && currentSymbol != ')' && currentSymbol != '*' && currentSymbol != '|' && currentSymbol != '.';
+        return currentSymbol != '(' && currentSymbol != ')' && currentSymbol != '*'
+                && currentSymbol != '|' && currentSymbol != '.' && currentSymbol != '+';
     }
 
     private static NFA regexToNfa(String regex) {
@@ -78,7 +129,7 @@ public class RegexRecognizer {
         char[] x = regex.toCharArray();
         for (char value : x) {
             currentSymbol = value;
-            if (isNotOperator(currentSymbol)) //Must be a character, so build simplest NFA
+            if (isNotOperator(currentSymbol)) //Must be a character, so build the simplest NFA
             {
                 newSym = new NFA();
                 newSym.setStates(2);
@@ -91,6 +142,10 @@ public class RegexRecognizer {
                         NFA starSym = operands.pop();
                         operands.push(kleene(starSym));
                         break;
+                    case '+':
+                        NFA plusSym = operands.pop();
+                        operands.push(plus(plusSym));
+                        break;
                     case '.':
                     case '|':
                     case '(':
@@ -98,13 +153,16 @@ public class RegexRecognizer {
                         break;
                     default:
                         operatorCount = 0;
-                        operatorSymbol = operators.peek();//See which symbol is on top
-                        if (operatorSymbol == '(')
-                            continue;//Keep searching operands
+                        operatorSymbol = operators.peek();
+                        //Keep searching operands
+                        if (operatorSymbol == '(') {
+                            continue;
+                        }
+                        //Collect operands
                         do {
                             operators.pop();
                             operatorCount++;
-                        } while (operators.peek() != '(');//Collect operands
+                        } while (operators.peek() != '(');
                         operators.pop();
                         NFA firstOperand;
                         NFA secondOperand;
@@ -113,11 +171,13 @@ public class RegexRecognizer {
                             for (int ii = 0; ii < operatorCount; ii++) {
                                 secondOperand = operands.pop();
                                 firstOperand = operands.pop();
-                                operands.push(concat(firstOperand, secondOperand));//Concatenate and add back
+                                operands.push(concat(firstOperand, secondOperand));
                             }
                         } else if (operatorSymbol == '|') {
-                            for (int j = 0; j < operatorCount + 1; j++)
+                            for (int j = 0; j < operatorCount + 1; j++) {
                                 selections.add(new NFA());
+                            }
+
                             int tracker = operatorCount;
                             for (int k = 0; k < operatorCount + 1; k++) {
                                 selections.set(tracker, operands.pop());
@@ -161,7 +221,7 @@ public class RegexRecognizer {
     public static void recognise() {
         System.out.println("\nThe Thompson's Construction Algorithm takes a regular expression as " +
                 "an input and returns its corresponding Non-Deterministic Finite Automaton \n");
-        System.out.println("The current recognizer supports characters 'a' and 'b', operations '.', '|' and '*'");
+        System.out.println("The current recognizer supports characters 'a' and 'b', operations '.', '|', '+' and '*'");
         System.out.println("Metadata '(' and ')' \n\n");
         System.out.println("Enter the regular expression. Ex: (a|b)*aab");
         String regex = new Scanner(System.in).next();

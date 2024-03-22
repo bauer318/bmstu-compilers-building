@@ -53,7 +53,7 @@ public class NFA {
         ArrayList<Character> result = new ArrayList<>();
         for (int stateFrom : states) {
             for (Transition transition : transitions) {
-                if (transition.getFromState() == stateFrom && transition.getSymbol() != '^') {
+                if (transition.getFromState() == stateFrom && transition.getSymbol() != 'e') {
                     result.add(transition.getSymbol());
                 }
             }
@@ -64,8 +64,7 @@ public class NFA {
     public ArrayList<Integer> unique(ArrayList<Integer> list) {
         return IntStream
                 .range(0, list.size())
-                .filter(i -> ((i < list.size() - 1 && !list.get(i).equals(list
-                        .get(i + 1))) || i == list.size() - 1))
+                .filter(i -> ((i < list.size() - 1 && !list.get(i).equals(list.get(i + 1))) || i == list.size() - 1))
                 .mapToObj(list::get).collect(Collectors.toCollection(ArrayList::new));
     }
 
@@ -83,7 +82,7 @@ public class NFA {
     {
         result.add(x);
         for (Transition transition : transitions) {
-            if (transition.getFromState() == x && transition.getSymbol() == '^') {
+            if (transition.getFromState() == x && transition.getSymbol() == 'e') {
                 int y = transition.getToState();
                 if (!visited[y]) {
                     visited[y] = true;
