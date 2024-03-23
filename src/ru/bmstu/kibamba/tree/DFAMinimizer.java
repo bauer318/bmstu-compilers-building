@@ -105,9 +105,9 @@ public class DFAMinimizer {
         var equivalentStates = getEquivalentState(component, sourceDFA);
         for (var state = 0; state < n; state++) {
             var currentNewState = component[state];
-            /*if (areEquivalentState(state, currentNewState, equivalentStates) && currentNewState != state) {
+            if (areEquivalentState(state, currentNewState, equivalentStates) && currentNewState != state) {
                 continue;
-            }*/
+            }
             for (Transition transition : sourceDFA.getTransitions()) {
                 if (transition.getFromState() == state) {
                     var toNewState = component[transition.getToState()];

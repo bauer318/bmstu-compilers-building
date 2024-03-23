@@ -79,8 +79,10 @@ public class DFA {
     public void display() {
         System.out.println();
         for (Transition transition : transitions) {
-            System.out.println("q" + transition.getFromState() + " {" + FAUtils.join(entries.get(transition.getFromState()), ",")
-                    + "} " + transition.getSymbol() + " --> q" + transition.getToState() + " {" + FAUtils.join(entries.get(transition.getToState()), ",")
+            System.out.println("q" + transition.getFromState() +
+                    " {" + FAUtils.join(entries.get(transition.getFromState()), ",")
+                    + "} " + transition.getSymbol() + " --> q" + transition.getToState() +
+                    " {" + FAUtils.join(entries.get(transition.getToState()), ",")
                     + "}");
         }
         System.out.println("The final states are q : " + FAUtils.join(finalStates, ","));
@@ -89,7 +91,8 @@ public class DFA {
     public void displayMinDFA() {
         System.out.println();
         for (Transition transition : transitions) {
-            var printStr = "q" + transition.getFromState() + " " + transition.getSymbol() + " --> q" + transition.getToState();
+            var printStr = "q" + transition.getFromState() + " " + transition.getSymbol() +
+                    " --> q" + transition.getToState();
             if (finalStates.contains(transition.getToState())) {
                 printStr = printStr.concat(" final state ");
             }
