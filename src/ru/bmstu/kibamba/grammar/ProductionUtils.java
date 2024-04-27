@@ -78,31 +78,51 @@ public class ProductionUtils {
         return chain.substring(0, chain.length() - 1);
     }
 
-    public static Production[] performsStep02(Production production) {
-        Production[] result = new Production[2];
-        String productionNoTerminal = production.getNoTerminal();
-
-        List<String> alpha = new ArrayList<>();
-        List<String> beta = new ArrayList<>();
-
-        String[] productionChains = getProductionChainsArray(production);
-
-        for (String chain : productionChains) {
-            if (chain.substring(0, 1).equals(productionNoTerminal)) {
-                alpha.add(chain.substring(1));
-            } else {
-                beta.add(chain);
-            }
-        }
-        var modifiedProduction = new Production(productionNoTerminal, getProductionChainStr(beta, productionNoTerminal));
-        String primNoTerminalProd = productionNoTerminal.concat("'");
-        var primeProd = new Production(primNoTerminalProd, getProductionChainStr(alpha, primNoTerminalProd));
-        result[0] = modifiedProduction;
-        result[1] = primeProd;
-        return result;
+    public static void performsStep01(Map<Integer, Production> productionMap) {
+        var i = 1;
+        var n = productionMap.size();
+        performsStep02(n, i, productionMap);
     }
 
-    public static Production performsStep04(int i, int j, Map<Integer, Production> productionsMap) {
+    public static void performsStep02(int n, int i, Map<Integer, Production> productionMap) {
+        var currentProduction = productionMap.get(i);
+        if (isProductionContainsLeftRecursion(currentProduction)) {
+            String productionNoTerminal = currentProduction.getNoTerminal();
+
+            List<String> alpha = new ArrayList<>();
+            List<String> beta = new ArrayList<>();
+
+            String[] productionChains = getProductionChainsArray(currentProduction);
+
+            for (String chain : productionChains) {
+                if (chain.substring(0, 1).equals(productionNoTerminal)) {
+                    alpha.add(chain.substring(1));
+                } else {
+                    beta.add(chain);
+                }
+            }
+            var currentProductionModifiedChain = getProductionChainStr(beta, productionNoTerminal);
+            currentProduction.setChain(currentProductionModifiedChain);
+            var primNoTerminalProd = productionNoTerminal.concat("'");
+            var primChain = getProductionChainStr(alpha, productionNoTerminal);
+            var primeProd = new Production(primNoTerminalProd, primChain);
+            productionMap.put(productionMap.size() + 1, primeProd);
+        }
+
+        performsStep03(n, i, productionMap);
+
+    }
+
+    public static void performsStep03(int n, int i, Map<Integer, Production> productionMap) {
+        if (i == n) {
+            return;
+        }
+        i++;
+        var j = 1;
+        performsStep04(n, i, j, productionMap);
+    }
+
+    public static void performsStep04(int n, int i, int j, Map<Integer, Production> productionsMap) {
         var ai = productionsMap.get(i);
         var result = new Production(ai.getNoTerminal());
         var aiChains = getProductionChainsArray(ai);
@@ -115,7 +135,11 @@ public class ProductionUtils {
                 var alpha = chain.substring(1);
                 var aj = productionsMap.get(j);
                 var ajChains = getProductionChainsArray(aj);
-                Collections.addAll(betas, ajChains);
+                for(String beta : ajChains){
+                    if(!beta.contains("'")){
+                        betas.add(beta);
+                    }
+                }
                 resultChain.append(getBetasAlphaProductionChainStr(betas, alpha));
             } else {
                 resultChain.append(chain);
@@ -126,6 +150,34 @@ public class ProductionUtils {
                     .concat("|"));
         }
         result.setChain(removeChainLastOrCharacter(result.getChain()));
+        ai.setChain(result.getChain());
+
+        performsStep05(n, i, j, productionsMap);
+    }
+
+    private static void performsStep05(int n, int i, int j, Map<Integer, Production> productionMap) {
+        if (j == i - 1) {
+            performsStep02(n, i, productionMap);
+        } else {
+            j++;
+            performsStep04(n, i, j, productionMap);
+        }
+    }
+
+    public static void removeLeftRecursion(List<String> productions) {
+        Map<Integer, Production> productionMap = createProductionMap(productions);
+        Map<Integer, Production> clonedProductionMap = cloneProductionMap(productionMap);
+
+        performsStep01(productionMap);
+
+        for (Production p : productionMap.values()) {
+            System.out.println(p);
+        }
+    }
+
+    public static Map<Integer, Production> cloneProductionMap(Map<Integer, Production> sourceProductionMap) {
+        Map<Integer, Production> result = new HashMap<>();
+        sourceProductionMap.forEach((key, value) -> result.put(key, new Production(value.getNoTerminal(), value.getChain())));
 
         return result;
     }
