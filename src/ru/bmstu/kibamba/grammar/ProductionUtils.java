@@ -135,11 +135,7 @@ public class ProductionUtils {
                 var alpha = chain.substring(1);
                 var aj = productionsMap.get(j);
                 var ajChains = getProductionChainsArray(aj);
-                for(String beta : ajChains){
-                    if(!beta.contains("'")){
-                        betas.add(beta);
-                    }
-                }
+                Collections.addAll(betas, ajChains);
                 resultChain.append(getBetasAlphaProductionChainStr(betas, alpha));
             } else {
                 resultChain.append(chain);
@@ -166,19 +162,10 @@ public class ProductionUtils {
 
     public static void removeLeftRecursion(List<String> productions) {
         Map<Integer, Production> productionMap = createProductionMap(productions);
-        Map<Integer, Production> clonedProductionMap = cloneProductionMap(productionMap);
-
         performsStep01(productionMap);
 
         for (Production p : productionMap.values()) {
             System.out.println(p);
         }
-    }
-
-    public static Map<Integer, Production> cloneProductionMap(Map<Integer, Production> sourceProductionMap) {
-        Map<Integer, Production> result = new HashMap<>();
-        sourceProductionMap.forEach((key, value) -> result.put(key, new Production(value.getNoTerminal(), value.getChain())));
-
-        return result;
     }
 }
