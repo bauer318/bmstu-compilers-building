@@ -1,4 +1,4 @@
-package ru.bmstu.kibamba.gramatic;
+package ru.bmstu.kibamba.grammar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +7,7 @@ public class Test {
     public static void main(String[] args) {
         List<String> productionStr = new ArrayList<>();
         productionStr.add("A -> BC | a");
-        productionStr.add("B->CA|Ab");
+        productionStr.add("B->CA|Ab|Aa");
         productionStr.add("C -> AB|CC |a");
 
         var productions = ProductionUtils.createProductionMap(productionStr);
@@ -18,9 +18,9 @@ public class Test {
             }
         }
 
-        var e = ProductionUtils.performsStep02(new Production("B", "CA|BCb|ab"));
+       //var e = ProductionUtils.performsStep02(new Production("B", "CA|BCb|ab"));
 
-        System.out.println("ABC".substring(0,"ABC".length()-1));
+        var p04 = ProductionUtils.performsStep04(2,1,productions);
 
     }
 }

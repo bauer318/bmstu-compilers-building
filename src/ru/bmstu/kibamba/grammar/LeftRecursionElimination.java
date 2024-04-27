@@ -1,4 +1,4 @@
-package ru.bmstu.kibamba.gramatic;
+package ru.bmstu.kibamba.grammar;
 
 import java.util.Scanner;
 

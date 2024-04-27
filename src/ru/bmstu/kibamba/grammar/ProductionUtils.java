@@ -1,10 +1,10 @@
-package ru.bmstu.kibamba.gramatic;
+package ru.bmstu.kibamba.grammar;
 
 import java.util.*;
 
 public class ProductionUtils {
 
-    private static List<String> noTerminals = new ArrayList<>();
+    private static final List<String> noTerminals = new ArrayList<>();
 
     public static Map<Integer, Production> createProductionMap(List<String> productionsStr) {
         Map<Integer, Production> result = new HashMap<>();
@@ -27,10 +27,6 @@ public class ProductionUtils {
             }
         }
         return -1;
-    }
-
-    public static char getProductionFirst(Production production) {
-        return production.getChain().charAt(0);
     }
 
     public static boolean isProductionContainsLeftRecursion(Production production) {
@@ -56,26 +52,30 @@ public class ProductionUtils {
         return production.getChain().split("\\|");
     }
 
-    private static String getProductionChainStr(List<String> chains) {
-        StringBuilder sb = new StringBuilder();
-        for (String chain : chains) {
-            sb.append(chain).append("|");
-        }
-        var sbStr = sb.toString();
-        return sbStr;
-    }
-
     private static String getProductionChainStr(List<String> chains, String noTerminal) {
         StringBuilder secondPart = new StringBuilder();
         StringBuilder firstPart = new StringBuilder();
         for (String chain : chains) {
             firstPart.append(chain).append("|");
-            secondPart.append(chain).append(noTerminal).append("\'").append("|");
+            secondPart.append(chain).append(noTerminal).append("'").append("|");
         }
-        noTerminals.add(noTerminal.concat("\'"));
+        noTerminals.add(noTerminal.concat("'"));
         var sbStr = firstPart.append(secondPart).toString();
 
-        return sbStr.substring(0, sbStr.length() - 1);
+        return removeChainLastOrCharacter(sbStr);
+    }
+
+    private static String getBetasAlphaProductionChainStr(List<String> betas, String alpha) {
+        StringBuilder sb = new StringBuilder();
+        for (String beta : betas) {
+            sb.append(beta).append(alpha).append("|");
+        }
+        var sbStr = sb.toString();
+        return removeChainLastOrCharacter(sbStr);
+    }
+
+    private static String removeChainLastOrCharacter(String chain) {
+        return chain.substring(0, chain.length() - 1);
     }
 
     public static Production[] performsStep02(Production production) {
@@ -94,15 +94,38 @@ public class ProductionUtils {
                 beta.add(chain);
             }
         }
-        var modifiedProduction = new Production(productionNoTerminal, getProductionChainStr(beta,productionNoTerminal));
-        String primNoTerminalProd = productionNoTerminal.concat("\'");
-        var primeProd = new Production(primNoTerminalProd,getProductionChainStr(alpha,primNoTerminalProd));
+        var modifiedProduction = new Production(productionNoTerminal, getProductionChainStr(beta, productionNoTerminal));
+        String primNoTerminalProd = productionNoTerminal.concat("'");
+        var primeProd = new Production(primNoTerminalProd, getProductionChainStr(alpha, primNoTerminalProd));
+        result[0] = modifiedProduction;
+        result[1] = primeProd;
         return result;
     }
 
-    public static Production mergeAllProductionChains(Production production) {
-        Production result = new Production(production.getNoTerminal());
+    public static Production performsStep04(int i, int j, Map<Integer, Production> productionsMap) {
+        var ai = productionsMap.get(i);
+        var result = new Production(ai.getNoTerminal());
+        var aiChains = getProductionChainsArray(ai);
 
+        for (String chain : aiChains) {
+            int firstNoTerminalIndex = getProductionNoTerminalIndex(chain.substring(0, 1));
+            var resultChain = new StringBuilder();
+            if (firstNoTerminalIndex >= 0 && firstNoTerminalIndex + 1 == j) {
+                List<String> betas = new ArrayList<>();
+                var alpha = chain.substring(1);
+                var aj = productionsMap.get(j);
+                var ajChains = getProductionChainsArray(aj);
+                Collections.addAll(betas, ajChains);
+                resultChain.append(getBetasAlphaProductionChainStr(betas, alpha));
+            } else {
+                resultChain.append(chain);
+            }
+
+            result.setChain(result.getChain()
+                    .concat(resultChain.toString())
+                    .concat("|"));
+        }
+        result.setChain(removeChainLastOrCharacter(result.getChain()));
 
         return result;
     }
