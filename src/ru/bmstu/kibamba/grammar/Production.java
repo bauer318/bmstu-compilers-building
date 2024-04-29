@@ -1,5 +1,7 @@
 package ru.bmstu.kibamba.grammar;
 
+import java.util.Objects;
+
 public class Production {
     private String noTerminal;
     private String chain;
@@ -25,6 +27,19 @@ public class Production {
 
     public String getNoTerminal(){
         return this.noTerminal;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Production that = (Production) o;
+        return Objects.equals(noTerminal, that.noTerminal) && Objects.equals(chain, that.chain);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(noTerminal, chain);
     }
 
     public String getChain(){

@@ -1,10 +1,22 @@
 package ru.bmstu.kibamba.grammar;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ProductionUtils {
 
     private static final List<String> noTerminals = new ArrayList<>();
+
+    public static void setNoTerminals() {
+        noTerminals.add("A");
+        noTerminals.add("B");
+        noTerminals.add("C");
+        noTerminals.add("C'");
+        noTerminals.add("B'");
+    }
+
+    private static final String[] potentialsNoTerminals = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
+            "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
 
     public static Map<Integer, Production> createProductionMap(List<String> productionsStr) {
         Map<Integer, Production> result = new HashMap<>();
@@ -49,7 +61,11 @@ public class ProductionUtils {
     }
 
     private static String[] getProductionChainsArray(Production production) {
-        return production.getChain().split("\\|");
+        return getProductionChainsArray(production.getChain());
+    }
+
+    private static String[] getProductionChainsArray(String chain) {
+        return chain.split("\\|");
     }
 
     private static String getProductionChainStr(List<String> chains, String noTerminal) {
@@ -72,6 +88,41 @@ public class ProductionUtils {
         }
         var sbStr = sb.toString();
         return removeChainLastOrCharacter(sbStr);
+    }
+
+    private static String getBetasProductionStr(Set<String> betas) {
+        StringBuilder sb = new StringBuilder();
+        for (String beta : betas) {
+            sb.append(beta).append("|");
+        }
+        return removeChainLastOrCharacter(sb.toString());
+    }
+
+    private static Production getProductionByChain(List<Production> productions, Production production) {
+        var productionsToCheck = productions.stream().
+                filter(p -> p.getChain().length() == production.getChain().length()).collect(Collectors.toList());
+        for (Production pr : productionsToCheck) {
+            if (areChainsEquals(pr.getChain(), production.getChain())) {
+                return pr;
+            }
+        }
+        return production;
+    }
+
+    public static boolean areChainsEquals(String firstChain, String secondChain) {
+        var firstChainArray = getProductionChainsArray(firstChain);
+        var secondChainArray = getProductionChainsArray(secondChain);
+        var count = firstChainArray.length;
+
+        for (String currentChain : firstChainArray) {
+            for (String chain : secondChainArray) {
+                if (currentChain.equals(chain)) {
+                    count--;
+                    break;
+                }
+            }
+        }
+        return count == 0;
     }
 
     private static String removeChainLastOrCharacter(String chain) {
@@ -167,5 +218,161 @@ public class ProductionUtils {
         for (Production p : productionMap.values()) {
             System.out.println(p);
         }
+    }
+
+    public static String findMaxChainFactor(String[] chains) {
+        List<String> sortedChains = Arrays.stream(chains).sorted(Comparator.comparingInt(String::length).reversed())
+                .collect(Collectors.toList());
+
+        for (String currentChain : sortedChains) {
+            var currentChainLength = currentChain.length();
+            var chainsToCheck = Arrays.stream(chains).filter(chain -> chain.length() >= currentChainLength).collect(Collectors.toList());
+            var count = 0;
+            for (String chain : chainsToCheck) {
+                if (chain.startsWith(currentChain)) {
+                    count++;
+                }
+            }
+            if (count >= 2) {
+                return currentChain;
+            }
+        }
+        return findChainFactor(chains);
+    }
+
+    public static String first(String chain) {
+        if (chain.substring(0, 2).contains("'")) {
+            var i = 2;
+            var keepSearching = chain.substring(i).startsWith("'");
+            while (keepSearching) {
+                i++;
+                keepSearching = chain.substring(i).startsWith("'");
+            }
+            return chain.substring(0, i);
+        }
+        return chain.substring(0, 1);
+    }
+
+    public static String findChainFactor(String[] chains) {
+        var i = 0;
+        var count = 0;
+        var first = "";
+        do {
+            first = first(chains[i]);
+            count = count(chains, first);
+            i++;
+        } while (count <= 1 && i < chains.length);
+        return count >= 2 ? first : "";
+
+    }
+
+    private static int count(String[] chains, String first) {
+        var count = 0;
+        for (String chain : chains) {
+            if (chain.startsWith(first)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public static void leftFactorsProduction(Production production, List<Production> productions) {
+        var noTerminal = production.getNoTerminal();
+        var chains = getProductionChainsArray(production);
+        var alpha = findMaxChainFactor(chains);
+        Set<String> betas = new HashSet<>();
+
+        var factor = getFactor(noTerminal);
+        var firstAlphaIndex = createBetaListReturnFirstAlphaIndex(chains, alpha, betas);
+
+        Production productionToAdd = new Production(factor, getBetasProductionStr(betas));
+        Production productionByChain = getProductionByChain(productions, productionToAdd);
+        boolean canAddProduction = factor.equals(productionByChain.getNoTerminal());
+        factor = productionByChain.getNoTerminal();
+
+        String modifiedChain = modifyChain(alpha, chains, firstAlphaIndex, factor);
+        modifyProduction(modifiedChain, production, canAddProduction, productionToAdd, productions);
+    }
+
+    private static String modifyChain(String alpha, String[] chains, int firstAlphaIndex, String factor) {
+        StringBuilder modifiedChain = new StringBuilder();
+        if (!alpha.isEmpty()) {
+            for (var i = 0; i < chains.length; i++) {
+                if (i == firstAlphaIndex) {
+                    modifiedChain.append(alpha).append(factor).append("|");
+                } else {
+                    if (!chains[i].startsWith(alpha)) {
+                        modifiedChain.append(chains[i]).append("|");
+                    }
+                }
+            }
+            if (!noTerminals.contains(factor)) {
+                noTerminals.add(factor);
+            }
+        }
+
+        return modifiedChain.toString();
+    }
+
+    private static void modifyProduction(String modifiedChain, Production production, boolean canAddProduction,
+                                         Production productionToAdd, List<Production> productions) {
+
+        if (!modifiedChain.isEmpty()) {
+            var result = removeChainLastOrCharacter(modifiedChain);
+            production.setChain(result);
+            if (canAddProduction) {
+                productions.add(productionToAdd);
+            }
+            leftFactorsProduction(production, productions);
+        }
+    }
+
+    private static int createBetaListReturnFirstAlphaIndex(String[] chains, String alpha, Set<String> betas) {
+        var firstAlphaIndex = 0;
+        var firstAlphaIndexHasBeenFound = false;
+        var count = 0;
+        for (String chain : chains) {
+            if (chain.startsWith(alpha)) {
+                if (!firstAlphaIndexHasBeenFound) {
+                    firstAlphaIndexHasBeenFound = true;
+                    firstAlphaIndex = count;
+                }
+                var beta = chain.substring(alpha.length());
+                beta = beta.isEmpty() ? "£" : beta;
+                betas.add(beta);
+            }
+            count++;
+        }
+        return firstAlphaIndex;
+    }
+
+    private static String getFactor(String noTerminal) {
+        StringBuilder sb = new StringBuilder(noTerminal.concat("'"));
+        if (noTerminals.contains(sb.toString())) {
+            var i = 0;
+            var j = 0;
+            var quotationMark = getQuotationsMark(j);
+            var newNoTerminal = new StringBuilder(potentialsNoTerminals[i].concat(quotationMark));
+            do {
+                i++;
+                if (i == potentialsNoTerminals.length) {
+                    i = 0;
+                    j++;
+                    quotationMark = getQuotationsMark(j);
+                }
+                newNoTerminal = new StringBuilder(potentialsNoTerminals[i].concat(quotationMark));
+            } while (noTerminals.contains(newNoTerminal.toString()));
+
+            return newNoTerminal.toString();
+        }
+        return sb.toString();
+    }
+
+    private static String getQuotationsMark(int i) {
+        StringBuilder sb = new StringBuilder();
+        for (var j = 1; j < i; j++) {
+            sb.append("'");
+        }
+        return sb.toString();
     }
 }
