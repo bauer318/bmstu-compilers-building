@@ -4,21 +4,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ProductionUtils {
-
     private static final List<String> noTerminals = new ArrayList<>();
-
-    public static void setNoTerminals() {
-        noTerminals.add("A");
-        noTerminals.add("B");
-        noTerminals.add("C");
-        noTerminals.add("C'");
-        noTerminals.add("B'");
-    }
-
     private static final String[] potentialsNoTerminals = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
             "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
 
-    public static Map<Integer, Production> createProductionMap(List<String> productionsStr) {
+    private static Map<Integer, Production> createProductionMap(List<String> productionsStr) {
         Map<Integer, Production> result = new HashMap<>();
         var count = 0;
         for (String s : productionsStr) {
@@ -32,7 +22,7 @@ public class ProductionUtils {
         return result;
     }
 
-    public static int getProductionNoTerminalIndex(String noTerminal) {
+    private static int getProductionNoTerminalIndex(String noTerminal) {
         for (var i = 0; i < noTerminals.size(); i++) {
             if (Objects.equals(noTerminals.get(i), noTerminal)) {
                 return i;
@@ -41,7 +31,7 @@ public class ProductionUtils {
         return -1;
     }
 
-    public static boolean isProductionContainsLeftRecursion(Production production) {
+    private static boolean isProductionContainsLeftRecursion(Production production) {
         String productionNoTerminal = production.getNoTerminal();
         int productionNoTerminalIndex = getProductionNoTerminalIndex(productionNoTerminal);
 
@@ -109,7 +99,7 @@ public class ProductionUtils {
         return production;
     }
 
-    public static boolean areChainsEquals(String firstChain, String secondChain) {
+    private static boolean areChainsEquals(String firstChain, String secondChain) {
         var firstChainArray = getProductionChainsArray(firstChain);
         var secondChainArray = getProductionChainsArray(secondChain);
         var count = firstChainArray.length;
@@ -129,13 +119,13 @@ public class ProductionUtils {
         return chain.substring(0, chain.length() - 1);
     }
 
-    public static void performsStep01(Map<Integer, Production> productionMap) {
+    private static void performsStep01(Map<Integer, Production> productionMap) {
         var i = 1;
         var n = productionMap.size();
         performsStep02(n, i, productionMap);
     }
 
-    public static void performsStep02(int n, int i, Map<Integer, Production> productionMap) {
+    private static void performsStep02(int n, int i, Map<Integer, Production> productionMap) {
         var currentProduction = productionMap.get(i);
         if (isProductionContainsLeftRecursion(currentProduction)) {
             String productionNoTerminal = currentProduction.getNoTerminal();
@@ -159,12 +149,10 @@ public class ProductionUtils {
             var primeProd = new Production(primNoTerminalProd, primChain);
             productionMap.put(productionMap.size() + 1, primeProd);
         }
-
         performsStep03(n, i, productionMap);
-
     }
 
-    public static void performsStep03(int n, int i, Map<Integer, Production> productionMap) {
+    private static void performsStep03(int n, int i, Map<Integer, Production> productionMap) {
         if (i == n) {
             return;
         }
@@ -173,7 +161,7 @@ public class ProductionUtils {
         performsStep04(n, i, j, productionMap);
     }
 
-    public static void performsStep04(int n, int i, int j, Map<Integer, Production> productionsMap) {
+    private static void performsStep04(int n, int i, int j, Map<Integer, Production> productionsMap) {
         var ai = productionsMap.get(i);
         var result = new Production(ai.getNoTerminal());
         var aiChains = getProductionChainsArray(ai);
@@ -211,22 +199,42 @@ public class ProductionUtils {
         }
     }
 
-    public static void removeLeftRecursion(List<String> productions) {
+    public static Map<Integer, Production> removeLeftRecursion(List<String> productions) {
         Map<Integer, Production> productionMap = createProductionMap(productions);
         performsStep01(productionMap);
 
-        for (Production p : productionMap.values()) {
-            System.out.println(p);
-        }
+        return productionMap;
     }
 
-    public static String findMaxChainFactor(String[] chains) {
+    public static List<Production> leftFactorsProduction(Map<Integer, Production> productionWithoutLeftRecursion) {
+        List<Production> productions = new ArrayList<>(productionWithoutLeftRecursion.values());
+        var index = getProductionToLeftFactoriseIndex(productions);
+        while (index != -1) {
+            leftFactorsProduction(productions.get(index), productions);
+            index = getProductionToLeftFactoriseIndex(productions);
+        }
+
+        return productions;
+    }
+
+    private static int getProductionToLeftFactoriseIndex(List<Production> productions) {
+        for (var i = 0; i < productions.size(); i++) {
+            var alpha = findMaxChainFactor(getProductionChainsArray(productions.get(i)));
+            if (!alpha.isEmpty()) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private static String findMaxChainFactor(String[] chains) {
         List<String> sortedChains = Arrays.stream(chains).sorted(Comparator.comparingInt(String::length).reversed())
                 .collect(Collectors.toList());
 
         for (String currentChain : sortedChains) {
             var currentChainLength = currentChain.length();
-            var chainsToCheck = Arrays.stream(chains).filter(chain -> chain.length() >= currentChainLength).collect(Collectors.toList());
+            var chainsToCheck = Arrays.stream(chains).filter(chain -> chain.length() >= currentChainLength)
+                    .collect(Collectors.toList());
             var count = 0;
             for (String chain : chainsToCheck) {
                 if (chain.startsWith(currentChain)) {
@@ -240,20 +248,22 @@ public class ProductionUtils {
         return findChainFactor(chains);
     }
 
-    public static String first(String chain) {
-        if (chain.substring(0, 2).contains("'")) {
-            var i = 2;
-            var keepSearching = chain.substring(i).startsWith("'");
-            while (keepSearching) {
-                i++;
-                keepSearching = chain.substring(i).startsWith("'");
+    private static String first(String chain) {
+        if (chain.length() >= 2) {
+            if (chain.substring(0, 2).contains("'")) {
+                var i = 2;
+                var keepSearching = chain.substring(i).startsWith("'");
+                while (keepSearching) {
+                    i++;
+                    keepSearching = chain.substring(i).startsWith("'");
+                }
+                return chain.substring(0, i);
             }
-            return chain.substring(0, i);
         }
         return chain.substring(0, 1);
     }
 
-    public static String findChainFactor(String[] chains) {
+    private static String findChainFactor(String[] chains) {
         var i = 0;
         var count = 0;
         var first = "";
@@ -276,7 +286,7 @@ public class ProductionUtils {
         return count;
     }
 
-    public static void leftFactorsProduction(Production production, List<Production> productions) {
+    private static void leftFactorsProduction(Production production, List<Production> productions) {
         var noTerminal = production.getNoTerminal();
         var chains = getProductionChainsArray(production);
         var alpha = findMaxChainFactor(chains);
@@ -347,7 +357,7 @@ public class ProductionUtils {
     }
 
     private static String getFactor(String noTerminal) {
-        StringBuilder sb = new StringBuilder(noTerminal.concat("'"));
+        StringBuilder sb = new StringBuilder(noTerminal.contains("'") ? noTerminal : noTerminal.concat("'"));
         if (noTerminals.contains(sb.toString())) {
             var i = 0;
             var j = 0;
@@ -369,10 +379,6 @@ public class ProductionUtils {
     }
 
     private static String getQuotationsMark(int i) {
-        StringBuilder sb = new StringBuilder();
-        for (var j = 1; j < i; j++) {
-            sb.append("'");
-        }
-        return sb.toString();
+        return "'".repeat(Math.max(0, i - 1));
     }
 }
