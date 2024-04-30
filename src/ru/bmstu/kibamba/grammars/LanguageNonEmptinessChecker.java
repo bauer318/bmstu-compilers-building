@@ -4,7 +4,8 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import static ru.bmstu.kibamba.grammars.ProductionUtils.*;
+import static ru.bmstu.kibamba.grammars.ProductionUtils.getProductionChainsArray;
+import static ru.bmstu.kibamba.grammars.ProductionUtils.getProductionTokenArray;
 
 public class LanguageNonEmptinessChecker {
 
@@ -12,33 +13,23 @@ public class LanguageNonEmptinessChecker {
         Set<String> emptyNonterminals = new HashSet<>();
         Grammar clonedGrammar = grammar.clone();
 
-        return performStep02(clonedGrammar,emptyNonterminals);
+        return performStep02(clonedGrammar, emptyNonterminals);
     }
 
-    private static Set<String> performStep02(Grammar grammar, Set<String> prevNonterminals) {
-
+    private static Set<String> performStep02(Grammar grammar, Set<String> predNonterminals) {
         Set<String> currentNonterminals = new LinkedHashSet<>();
         for (Production production : grammar.getProductions()) {
             var chains = getProductionChainsArray(production);
             for (String chain : chains) {
-                if(grammar.getTerminals().contains(chain)){
-                    prevNonterminals.add(production.getNonterminal());
-                    break;
-                }
-            }
-        }
-        for (Production production : grammar.getProductions()) {
-            var chains = getProductionChainsArray(production);
-            for (String chain : chains) {
-                var nonTerminalChain = removeTerminalsFrom(chain,grammar.getNonterminals());
-                if(prevNonterminals.contains(nonTerminalChain)){
+                if (isAlphaBelongSet(chain, predNonterminals) || isAlphaBelongSet(chain, grammar.getTerminals())
+                        || chain.equals("£")) {
                     currentNonterminals.add(production.getNonterminal());
                     break;
                 }
             }
         }
-
-       return performStep03(grammar, currentNonterminals, prevNonterminals);
+        currentNonterminals.addAll(predNonterminals);
+        return performStep03(grammar, currentNonterminals, predNonterminals);
     }
 
     private static Set<String> performStep03(Grammar grammar, Set<String> currentNonterminals, Set<String> predNonterminals) {
@@ -56,6 +47,16 @@ public class LanguageNonEmptinessChecker {
         } else {
             System.out.println("НЕТ");
         }
+    }
+
+    private static boolean isAlphaBelongSet(String alpha, Set<String> terminalsNonterminals) {
+        var alphaTokens = getProductionTokenArray(alpha);
+        for (String token : alphaTokens) {
+            if (!terminalsNonterminals.contains(token)) {
+                return false;
+            }
+        }
+        return true;
     }
 
 

@@ -87,6 +87,9 @@ public class Test {
         Grammar g1 = new Grammar(n1, t1, p1, s1);
 
         var a = LanguageNonEmptinessChecker.performStep01(g1);
+        for (String st : a) {
+            System.out.println(st);
+        }
 
         /*var a = ProductionUtils.getProductionTokenArray("a'''B'cbA''a");
         for (String st : a) {
