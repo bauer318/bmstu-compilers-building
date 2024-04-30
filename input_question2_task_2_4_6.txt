@@ -1,0 +1,13 @@
+3
+S A B
+2
+a b
+7
+S->A
+S->B
+A->aB
+A->bS
+A->b
+B->AS
+B->b
+S

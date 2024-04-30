@@ -1,0 +1,52 @@
+{
+  "name": "G1",
+  "terminalSymbols": [
+    {
+      "name": "IDENT",
+      "spell": "a"
+    },
+    {
+      "name": "IDENT",
+      "spell": "b"
+    }
+  ],
+  "nonterminalSymbols": [
+    {
+      "name": "S"
+    },
+    {
+      "name": "B"
+    }
+  ],
+  "productions": [
+    {
+      "lhs": {
+        "name": "S"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "TERM",
+            "name": "IDENT"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "B"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "TERM",
+            "name": "IDENT"
+          }
+        ]
+      }
+    }
+  ],
+  "startSymbol": {
+    "name": "S"
+  }
+}

@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
 
-import static ru.bmstu.kibamba.grammars.ProductionUtils.getProductionTokenArray;
+import static ru.bmstu.kibamba.grammars.GrammarUtils.*;
 
 public class GrammarFileReader {
 
@@ -17,7 +17,7 @@ public class GrammarFileReader {
         List<Production> productions = new ArrayList<>();
         String firstSymbol = "";
         try {
-            File file = new File(fileName.concat(".txt"));
+            File file = new File(getFileNameWithExtension(fileName));
             int lineNumber = getFileLinesNumber(file);
             Scanner sc = new Scanner(file);
             var count = 0;
@@ -39,17 +39,39 @@ public class GrammarFileReader {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+        productions = mergeProductionChains(productions);
         return new Grammar(nonterminals, terminals, productions, firstSymbol);
     }
 
     private static Set<String> getSetFromReadLine(String readLine) {
-        var characters = getProductionTokenArray(readLine.replaceAll("\\s", ""));
+        var characters = getProductionTokenArray(readLine.
+                replaceAll("\\s", ""));
         return new LinkedHashSet<>(characters);
     }
 
     private static Production getProductionFromReadLine(String readLine) {
         var productions = readLine.replaceAll("\\s", "").split("->");
         return new Production(productions[0], productions[1]);
+    }
+
+    private static List<Production> mergeProductionChains(List<Production> productions) {
+        List<Production> result = new ArrayList<>();
+        Set<String> nonterminals = new LinkedHashSet<>();
+
+        for (Production production : productions) {
+            nonterminals.add(production.getNonterminal());
+        }
+
+        for (String nonterminal : nonterminals) {
+            StringBuilder mergedChains = new StringBuilder();
+            List<Production> currentProductions = getAllProductionForNonterminal(nonterminal, productions);
+            for (Production production : currentProductions) {
+                mergedChains.append(production.getChain()).append("|");
+            }
+            var chain = removeChainLastOrCharacter(mergedChains.toString());
+            result.add(new Production(nonterminal, chain));
+        }
+        return result;
     }
 
     private static int getFileLinesNumber(File file) {

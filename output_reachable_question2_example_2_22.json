@@ -1,0 +1,32 @@
+{
+  "name": "G1\\\u0027",
+  "terminalSymbols": [
+    {
+      "name": "IDENT",
+      "spell": "a"
+    }
+  ],
+  "nonterminalSymbols": [
+    {
+      "name": "S"
+    }
+  ],
+  "productions": [
+    {
+      "lhs": {
+        "name": "S"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "TERM",
+            "name": "IDENT"
+          }
+        ]
+      }
+    }
+  ],
+  "startSymbol": {
+    "name": "S"
+  }
+}

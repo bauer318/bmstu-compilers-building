@@ -1,6 +1,9 @@
 package ru.bmstu.kibamba.files;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import ru.bmstu.kibamba.grammars.Grammar;
+import ru.bmstu.kibamba.grammars.GrammarUtils;
 import ru.bmstu.kibamba.grammars.Production;
 
 import java.io.FileWriter;
@@ -8,14 +11,13 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-import static ru.bmstu.kibamba.grammars.ProductionUtils.getProductionChainsArray;
-import static ru.bmstu.kibamba.grammars.ProductionUtils.getProductionTokenArray;
+import static ru.bmstu.kibamba.grammars.GrammarUtils.*;
 
 public class GrammarFileWriter {
 
     public static void writeGrammar(Grammar grammar, String fileName) {
         try {
-            FileWriter fileWriter = new FileWriter(fileName.concat(".txt"));
+            FileWriter fileWriter = new FileWriter(getFileNameWithExtension(fileName));
             fileWriter.write(getGrammarSetCharactersSize(grammar.getNonterminals()));
             fileWriter.write(getGrammarCharactersStr(grammar.getNonterminals()));
             fileWriter.write(getGrammarSetCharactersSize(grammar.getTerminals()));
@@ -37,7 +39,7 @@ public class GrammarFileWriter {
         return String.valueOf(productions.size()).concat("\n");
     }
 
-    public static String getGrammarCharactersStr(Set<String> set) {
+    private static String getGrammarCharactersStr(Set<String> set) {
         StringBuilder sb = new StringBuilder();
         for (String v : set) {
             sb.append(v).append(" ");
@@ -45,7 +47,7 @@ public class GrammarFileWriter {
         return sb.append("\n").toString();
     }
 
-    public static String getGrammarProductionsStr(List<Production> productions) {
+    private static String getGrammarProductionsStr(List<Production> productions) {
         StringBuilder sb = new StringBuilder();
         for (Production production : productions) {
             var chains = getProductionChainsArray(production);
@@ -59,5 +61,20 @@ public class GrammarFileWriter {
             }
         }
         return sb.toString();
+    }
+
+    public static void writeGrammarJsonFile(Grammar grammar, String grammarName, String fileName) {
+        ru.bmstu.kibamba.dto.Grammar gd = buildGrammarDTO(grammar, grammarName.replace("'","\\'"));
+        GsonBuilder builder = new GsonBuilder();
+        builder.setPrettyPrinting().serializeNulls();
+        Gson gson = builder.create();
+        var json = gson.toJson(gd);
+        try {
+            FileWriter fileWriter = new FileWriter(fileName.concat(".json"));
+            fileWriter.write(json);
+            fileWriter.close();
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }

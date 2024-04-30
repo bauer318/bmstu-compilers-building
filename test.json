@@ -1,0 +1,88 @@
+{
+  "name": "G",
+  "terminalSymbols": [
+    {
+      "name": "IDENT",
+      "spell": "a"
+    },
+    {
+      "name": "IDENT",
+      "spell": "b"
+    },
+    {
+      "name": "MUL",
+      "spell": "*"
+    },
+    {
+      "name": "LPAREN",
+      "spell": "("
+    },
+    {
+      "name": "RPAREN",
+      "spell": ")"
+    }
+  ],
+  "nonterminalSymbols": [
+    {
+      "name": "S"
+    },
+    {
+      "name": "A"
+    },
+    {
+      "name": "B"
+    }
+  ],
+  "productions": [
+    {
+      "lhs": {
+        "name": "S"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "TERM",
+            "name": "IDENT"
+          },
+          {
+            "type": "NONTERM",
+            "name": "A"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "A"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": "A"
+          },
+          {
+            "type": "NONTERM",
+            "name": "B"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "B"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "TERM",
+            "name": "IDENT"
+          }
+        ]
+      }
+    }
+  ],
+  "startSymbol": {
+    "name": "S"
+  }
+}

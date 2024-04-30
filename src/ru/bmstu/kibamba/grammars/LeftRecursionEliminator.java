@@ -3,7 +3,7 @@ package ru.bmstu.kibamba.grammars;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static ru.bmstu.kibamba.grammars.ProductionUtils.getProductionChainsArray;
+import static ru.bmstu.kibamba.grammars.GrammarUtils.*;
 
 public class LeftRecursionEliminator {
     private static final List<String> nonterminals = new ArrayList<>();
@@ -52,15 +52,20 @@ public class LeftRecursionEliminator {
         return false;
     }
 
-    private static String getProductionChainStr(List<String> chains, String nonterminal) {
+    private static String getProductionChainStr(List<String> chains, String nonterminal, boolean useSecondAlgorithm, boolean addEpsilon) {
         StringBuilder secondPart = new StringBuilder();
         StringBuilder firstPart = new StringBuilder();
         for (String chain : chains) {
-            firstPart.append(chain).append("|");
+            if (useSecondAlgorithm) {
+                firstPart.append(chain).append("|");
+            }
             secondPart.append(chain).append(nonterminal).append("'").append("|");
         }
         nonterminals.add(nonterminal.concat("'"));
         var sbStr = firstPart.append(secondPart).toString();
+        if (!useSecondAlgorithm && addEpsilon) {
+            sbStr = sbStr.concat("£|");
+        }
 
         return removeChainLastOrCharacter(sbStr);
     }
@@ -109,17 +114,13 @@ public class LeftRecursionEliminator {
         return count == 0;
     }
 
-    private static String removeChainLastOrCharacter(String chain) {
-        return chain.substring(0, chain.length() - 1);
-    }
-
-    private static void performsStep01(Map<Integer, Production> productionMap) {
+    private static void performsStep01(Map<Integer, Production> productionMap, boolean useSecondAlgorithm) {
         var i = 1;
         var n = productionMap.size();
-        performsStep02(n, i, productionMap);
+        performsStep02(n, i, productionMap, useSecondAlgorithm);
     }
 
-    private static void performsStep02(int n, int i, Map<Integer, Production> productionMap) {
+    private static void performsStep02(int n, int i, Map<Integer, Production> productionMap, boolean useSecondAlgorithm) {
         var currentProduction = productionMap.get(i);
         if (isProductionContainsLeftRecursion(currentProduction)) {
             String currentProductionNonterminal = currentProduction.getNonterminal();
@@ -136,26 +137,26 @@ public class LeftRecursionEliminator {
                     beta.add(chain);
                 }
             }
-            var currentProductionModifiedChain = getProductionChainStr(beta, currentProductionNonterminal);
+            var currentProductionModifiedChain = getProductionChainStr(beta, currentProductionNonterminal, useSecondAlgorithm, false);
             currentProduction.setChain(currentProductionModifiedChain);
             var newNonterminalProduction = currentProductionNonterminal.concat("'");
-            var newNonterminalChain = getProductionChainStr(alpha, currentProductionNonterminal);
+            var newNonterminalChain = getProductionChainStr(alpha, currentProductionNonterminal, useSecondAlgorithm, true);
             var newProduction = new Production(newNonterminalProduction, newNonterminalChain);
             productionMap.put(productionMap.size() + 1, newProduction);
         }
-        performsStep03(n, i, productionMap);
+        performsStep03(n, i, productionMap, useSecondAlgorithm);
     }
 
-    private static void performsStep03(int n, int i, Map<Integer, Production> productionMap) {
+    private static void performsStep03(int n, int i, Map<Integer, Production> productionMap, boolean useSecondAlgorithm) {
         if (i == n) {
             return;
         }
         i++;
         var j = 1;
-        performsStep04(n, i, j, productionMap);
+        performsStep04(n, i, j, productionMap, useSecondAlgorithm);
     }
 
-    private static void performsStep04(int n, int i, int j, Map<Integer, Production> productionsMap) {
+    private static void performsStep04(int n, int i, int j, Map<Integer, Production> productionsMap, boolean useSecondAlgorithm) {
         var ai = productionsMap.get(i);
         var result = new Production(ai.getNonterminal());
         var aiChains = getProductionChainsArray(ai);
@@ -181,34 +182,52 @@ public class LeftRecursionEliminator {
         result.setChain(removeChainLastOrCharacter(result.getChain()));
         ai.setChain(result.getChain());
 
-        performsStep05(n, i, j, productionsMap);
+        performsStep05(n, i, j, productionsMap, useSecondAlgorithm);
     }
 
-    private static void performsStep05(int n, int i, int j, Map<Integer, Production> productionMap) {
+    private static void performsStep05(int n, int i, int j, Map<Integer, Production> productionMap, boolean useSecondAlgorithm) {
         if (j == i - 1) {
-            performsStep02(n, i, productionMap);
+            performsStep02(n, i, productionMap, useSecondAlgorithm);
         } else {
             j++;
-            performsStep04(n, i, j, productionMap);
+            performsStep04(n, i, j, productionMap, useSecondAlgorithm);
         }
     }
 
-    public static Map<Integer, Production> removeLeftRecursion(List<String> productions) {
+    /*public static Map<Integer, Production> removeLeftRecursion(List<String> productions) {
         Map<Integer, Production> productionMap = createProductionMap(productions);
         performsStep01(productionMap);
 
         return productionMap;
+    }*/
+
+    public static Grammar removeLeftRecursion(Grammar grammar, boolean useSecondAlgorithm) {
+        Grammar clonedGrammar = grammar.clone();
+        Map<Integer, Production> productionMap = createProductionMap(getProductionsStr(clonedGrammar
+                .getProductions()));
+        performsStep01(productionMap, useSecondAlgorithm);
+        List<Production> productions = buildProduction(productionMap);
+        productions = eliminateEpsilonFactor(productions);
+
+        return new Grammar(getNonterminals(productions),
+                getTerminals(productions),
+                productions,
+                clonedGrammar.getFirstSymbol());
     }
 
-    public static List<Production> leftFactorsProduction(Map<Integer, Production> productionWithoutLeftRecursion) {
-        List<Production> productions = new ArrayList<>(productionWithoutLeftRecursion.values());
+    public static Grammar leftFactorsProduction(Grammar grammarWithoutLeftRecursion) {
+        List<Production> productions = cloneProductions(grammarWithoutLeftRecursion.getProductions());
         var index = getProductionToLeftFactoriseIndex(productions);
         while (index != -1) {
             leftFactorsProduction(productions.get(index), productions);
             index = getProductionToLeftFactoriseIndex(productions);
         }
 
-        return productions;
+        productions = eliminateEpsilonFactor(productions);
+        return new Grammar(getNonterminals(productions),
+                getTerminals(productions),
+                productions,
+                grammarWithoutLeftRecursion.getFirstSymbol());
     }
 
     private static int getProductionToLeftFactoriseIndex(List<Production> productions) {

@@ -5,7 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import static ru.bmstu.kibamba.grammars.ProductionUtils.*;
+import static ru.bmstu.kibamba.grammars.GrammarUtils.*;
 
 public class UnreachableCharacterEliminator {
 

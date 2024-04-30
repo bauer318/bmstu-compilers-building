@@ -1,5 +1,10 @@
 package ru.bmstu.kibamba.grammars;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import ru.bmstu.kibamba.dto.Nonterm;
+import ru.bmstu.kibamba.dto.Symbol;
+import ru.bmstu.kibamba.dto.Term;
 import ru.bmstu.kibamba.files.GrammarFileReader;
 import ru.bmstu.kibamba.files.GrammarFileWriter;
 
@@ -79,18 +84,49 @@ public class Test {
         Set<String> t1 = new LinkedHashSet<>();
         t1.add("a");
         t1.add("b");
+        t1.add("*");
+        t1.add("(");
+        t1.add(")");
         List<Production> p1 = List.of(new Production("S", "a|A"),
                 new Production("A", "AB"),
                 new Production("B", "b"));
         List<Production> p2 = List.of(new Production("O", "BC|a"), new Production("F", "B|C"));
         String s1 = "S";
 
+        /*var pr = GrammarUtils.getProductions(p1);
+        for (ru.bmstu.kibamba.dto.Production production : pr) {
+            System.out.println("lhs : name : " + production.getLhs().getName());
+            for (Symbol sym : production.getRhs().getSymbol()) {
+                System.out.println("Symbol");
+                System.out.println("type " + sym.getType() + "\nname :" + sym.getName());
 
-        Grammar g = new Grammar(n1, t1, p1, s1);
+            }
+            System.out.println("----------");
+        }*/
+        /*Grammar g = new Grammar(n1, t1, p1, s1);
+        ru.bmstu.kibamba.dto.Grammar gd = GrammarUtils.buildGrammarDTO(g, "G");
+        GsonBuilder builder = new GsonBuilder();
+        builder.setPrettyPrinting().serializeNulls();
+        Gson gson = builder.create();
+        var t = gson.toJson(gd);*/
+        //GrammarFileWriter.writeGrammarJsonFile("test", t);
+        //System.out.println(gson.toJson(gd));
 
+
+        //var term = GrammarUtils.getTerminalSymbols(t1);
+        //var nonterms = GrammarUtils.getNonterminalSymbols(n1);
+        /*for (Term st : term) {
+            System.out.println(st.getName() + "\n" + st.getSpell());
+        }*/
+
+        /*for (Nonterm nt : nonterms) {
+            System.out.println("name :" + nt.getName());
+        }*/
         //GrammarFileWriter.writeGrammar(g, "input");
-        Grammar g2 = GrammarFileReader.readGrammar("input");
-        System.out.println(g2);
+        //Grammar g2 = GrammarFileReader.readGrammar("input_question2_task_2_4_6.txt");
+        //System.out.println(g2);
+
+        //System.out.println("iadbdide".replaceAll("id", ""));
 
         /*Grammar g1 = LanguageNonEmptinessChecker.eliminatesUnnecessaryNonterminals(g);
 

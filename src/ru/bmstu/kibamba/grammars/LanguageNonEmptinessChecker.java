@@ -2,7 +2,7 @@ package ru.bmstu.kibamba.grammars;
 
 import java.util.*;
 
-import static ru.bmstu.kibamba.grammars.ProductionUtils.*;
+import static ru.bmstu.kibamba.grammars.GrammarUtils.*;
 
 public class LanguageNonEmptinessChecker {
 

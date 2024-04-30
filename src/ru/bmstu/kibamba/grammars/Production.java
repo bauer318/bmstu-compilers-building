@@ -2,7 +2,7 @@ package ru.bmstu.kibamba.grammars;
 
 import java.util.Objects;
 
-public class Production {
+public class Production implements Cloneable {
     private String nonterminal;
     private String chain;
 
@@ -49,5 +49,15 @@ public class Production {
     @Override
     public String toString(){
         return this.nonterminal + "->" + this.chain;
+    }
+
+    @Override
+    public Production clone() {
+        try {
+            Production clone = (Production) super.clone();
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }
