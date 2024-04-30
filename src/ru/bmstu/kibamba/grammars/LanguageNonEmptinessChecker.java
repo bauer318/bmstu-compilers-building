@@ -1,13 +1,40 @@
 package ru.bmstu.kibamba.grammars;
 
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 
-import static ru.bmstu.kibamba.grammars.ProductionUtils.getProductionChainsArray;
-import static ru.bmstu.kibamba.grammars.ProductionUtils.getProductionTokenArray;
+import static ru.bmstu.kibamba.grammars.ProductionUtils.*;
 
 public class LanguageNonEmptinessChecker {
+
+    /**
+     * eliminates unnecessary non-terminals
+     *
+     * @param grammar input grammar to eliminate unnecessary non-terminals
+     * @return Grammar with only non-terminals that can generate terminals chain
+     */
+    public static Grammar eliminatesUnnecessaryNonterminals(Grammar grammar) {
+        Grammar clonedGrammar = grammar.clone();
+        Set<String> nENonterminals = performStep01(grammar);
+
+        clonedGrammar.getNonterminals().retainAll(nENonterminals);
+        List<Production> productions = new ArrayList<>();
+
+        for (Production production : grammar.getProductions()) {
+            var chains = getProductionChainsArray(production);
+            for (String chain : chains) {
+                if (isAlphaBelongSet(chain, clonedGrammar.getTerminals()) ||
+                        isAlphaBelongSet(chain, grammar.getTerminals())) {
+                    productions.add(new Production(production.getNonterminal(), chain));
+
+                }
+            }
+        }
+
+        return new Grammar(clonedGrammar.getNonterminals(),
+                grammar.getTerminals(),
+                productions,
+                grammar.getFirstSymbol());
+    }
 
     public static Set<String> performStep01(Grammar grammar) {
         Set<String> emptyNonterminals = new HashSet<>();
@@ -49,15 +76,6 @@ public class LanguageNonEmptinessChecker {
         }
     }
 
-    private static boolean isAlphaBelongSet(String alpha, Set<String> terminalsNonterminals) {
-        var alphaTokens = getProductionTokenArray(alpha);
-        for (String token : alphaTokens) {
-            if (!terminalsNonterminals.contains(token)) {
-                return false;
-            }
-        }
-        return true;
-    }
 
 
 }

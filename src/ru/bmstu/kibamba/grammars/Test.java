@@ -72,24 +72,49 @@ public class Test {
         n1.add("S");
         n1.add("A");
         n1.add("B");
-        n1.add("C");
-        Set<String> n2 = Set.of("B", "C");
+
         Set<String> t1 = new LinkedHashSet<>();
         t1.add("a");
         t1.add("b");
-        List<Production> p1 = List.of(new Production("S", "aA|bB"),
-                new Production("A", "bAa"),
-                new Production("B", "aB|bS|a|b"),
-                new Production("C", "BaA"));
+        List<Production> p1 = List.of(new Production("S", "a|A"),
+                new Production("A", "AB"),
+                new Production("B", "b"));
         List<Production> p2 = List.of(new Production("O", "BC|a"), new Production("F", "B|C"));
         String s1 = "S";
 
-        Grammar g1 = new Grammar(n1, t1, p1, s1);
+        Grammar g = new Grammar(n1, t1, p1, s1);
 
-        var a = LanguageNonEmptinessChecker.performStep01(g1);
+        Grammar g1 = LanguageNonEmptinessChecker.eliminatesUnnecessaryNonterminals(g);
+
+        System.out.println(g);
+        System.out.println(g1);
+
+        n1 = new LinkedHashSet<>();
+        n1.add("E");
+        n1.add("T");
+        n1.add("F");
+
+        t1 = new LinkedHashSet<>();
+        t1.add("(");
+        t1.add(")");
+        t1.add("a");
+        t1.add("+");
+        t1.add("*");
+        p1 = List.of(new Production("E", "E+T|T"),
+
+                new Production("F", "(E)|a"));
+        s1 = "E";
+
+        g = new Grammar(n1, t1, p1, s1);
+
+        var g4 = UnreachableCharacterEliminator.eliminatesUnreachableCharacter(g1);
+        //Grammar g2 = LanguageNonEmptinessChecker.eliminatesUnnecessaryNonterminals(g1);
+        System.out.println(g4);
+
+        /*var a = LanguageNonEmptinessChecker.performStep01(g1);
         for (String st : a) {
             System.out.println(st);
-        }
+        }*/
 
         /*var a = ProductionUtils.getProductionTokenArray("a'''B'cbA''a");
         for (String st : a) {

@@ -49,4 +49,15 @@ public class ProductionUtils {
         return result.toString();
     }
 
+    public static boolean isAlphaBelongSet(String alpha, Set<String> terminalsNonterminals) {
+        var alphaTokens = getProductionTokenArray(alpha);
+        for (String token : alphaTokens) {
+            if (!terminalsNonterminals.contains(token)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
 }

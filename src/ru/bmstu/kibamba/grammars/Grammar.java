@@ -1,8 +1,6 @@
 package ru.bmstu.kibamba.grammars;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class Grammar implements Cloneable {
     private Set<String> nonterminals;
@@ -54,13 +52,23 @@ public class Grammar implements Cloneable {
     public Grammar clone() {
         try {
             Grammar clone = (Grammar) super.clone();
-            clone.setNonterminals(this.nonterminals);
+            clone.setNonterminals(new LinkedHashSet<>(this.nonterminals));
             clone.setFirstSymbol(this.firstSymbol);
-            clone.setProductions(this.productions);
-            clone.setTerminals(this.terminals);
+            clone.setProductions(new ArrayList<>(this.productions));
+            clone.setTerminals(new LinkedHashSet<>(this.terminals));
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.nonterminals.toString()).append("\n");
+        sb.append(this.terminals.toString()).append("\n");
+        sb.append(this.productions.toString()).append("\n");
+        sb.append(this.firstSymbol);
+        return sb.toString();
     }
 }
