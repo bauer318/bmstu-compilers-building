@@ -1,5 +1,8 @@
 package ru.bmstu.kibamba.grammars;
 
+import ru.bmstu.kibamba.files.GrammarFileReader;
+import ru.bmstu.kibamba.files.GrammarFileWriter;
+
 import java.util.*;
 
 public class Test {
@@ -82,9 +85,14 @@ public class Test {
         List<Production> p2 = List.of(new Production("O", "BC|a"), new Production("F", "B|C"));
         String s1 = "S";
 
+
         Grammar g = new Grammar(n1, t1, p1, s1);
 
-        Grammar g1 = LanguageNonEmptinessChecker.eliminatesUnnecessaryNonterminals(g);
+        //GrammarFileWriter.writeGrammar(g, "input");
+        Grammar g2 = GrammarFileReader.readGrammar("input");
+        System.out.println(g2);
+
+        /*Grammar g1 = LanguageNonEmptinessChecker.eliminatesUnnecessaryNonterminals(g);
 
         System.out.println(g);
         System.out.println(g1);
@@ -111,7 +119,7 @@ public class Test {
         //Grammar g2 = LanguageNonEmptinessChecker.eliminatesUnnecessaryNonterminals(g1);
         System.out.println(g4);
 
-        /*var a = LanguageNonEmptinessChecker.performStep01(g1);
+        var a = LanguageNonEmptinessChecker.performStep01(g1);
         for (String st : a) {
             System.out.println(st);
         }*/
