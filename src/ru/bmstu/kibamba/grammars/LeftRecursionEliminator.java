@@ -1,11 +1,13 @@
-package ru.bmstu.kibamba.grammar;
+package ru.bmstu.kibamba.grammars;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ProductionUtils {
-    private static final List<String> noTerminals = new ArrayList<>();
-    private static final String[] potentialsNoTerminals = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
+import static ru.bmstu.kibamba.grammars.ProductionUtils.getProductionChainsArray;
+
+public class LeftRecursionEliminator {
+    private static final List<String> nonterminals = new ArrayList<>();
+    private static final String[] POTENTIALS_NONTERMINALS = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
             "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
 
     private static Map<Integer, Production> createProductionMap(List<String> productionsStr) {
@@ -13,18 +15,18 @@ public class ProductionUtils {
         var count = 0;
         for (String s : productionsStr) {
             String[] splitProduction = s.replaceAll("\\s", "").split("->");
-            var noTerminal = splitProduction[0];
-            if (!noTerminals.contains(noTerminal)) {
-                noTerminals.add(noTerminal);
+            var nonterminal = splitProduction[0];
+            if (!nonterminals.contains(nonterminal)) {
+                nonterminals.add(nonterminal);
             }
-            result.put(++count, new Production(noTerminal, splitProduction[1]));
+            result.put(++count, new Production(nonterminal, splitProduction[1]));
         }
         return result;
     }
 
-    private static int getProductionNoTerminalIndex(String noTerminal) {
-        for (var i = 0; i < noTerminals.size(); i++) {
-            if (Objects.equals(noTerminals.get(i), noTerminal)) {
+    private static int getProductionNonterminalIndex(String nonterminal) {
+        for (var i = 0; i < nonterminals.size(); i++) {
+            if (Objects.equals(nonterminals.get(i), nonterminal)) {
                 return i;
             }
         }
@@ -32,40 +34,32 @@ public class ProductionUtils {
     }
 
     private static boolean isProductionContainsLeftRecursion(Production production) {
-        String productionNoTerminal = production.getNoTerminal();
-        int productionNoTerminalIndex = getProductionNoTerminalIndex(productionNoTerminal);
+        String productionNonterminal = production.getNonterminal();
+        int productionNonterminalIndex = getProductionNonterminalIndex(productionNonterminal);
 
         String[] productionChains = getProductionChainsArray(production);
 
         for (String chain : productionChains) {
             String currentCh = chain.substring(0, 1);
-            if (currentCh.equals(productionNoTerminal)) {
+            if (currentCh.equals(productionNonterminal)) {
                 return true;
             }
-            int currentChainFirstIndex = getProductionNoTerminalIndex(currentCh);
-            if (currentChainFirstIndex >= 0 && currentChainFirstIndex <= productionNoTerminalIndex) {
+            int currentChainFirstIndex = getProductionNonterminalIndex(currentCh);
+            if (currentChainFirstIndex >= 0 && currentChainFirstIndex <= productionNonterminalIndex) {
                 return true;
             }
         }
         return false;
     }
 
-    private static String[] getProductionChainsArray(Production production) {
-        return getProductionChainsArray(production.getChain());
-    }
-
-    private static String[] getProductionChainsArray(String chain) {
-        return chain.split("\\|");
-    }
-
-    private static String getProductionChainStr(List<String> chains, String noTerminal) {
+    private static String getProductionChainStr(List<String> chains, String nonterminal) {
         StringBuilder secondPart = new StringBuilder();
         StringBuilder firstPart = new StringBuilder();
         for (String chain : chains) {
             firstPart.append(chain).append("|");
-            secondPart.append(chain).append(noTerminal).append("'").append("|");
+            secondPart.append(chain).append(nonterminal).append("'").append("|");
         }
-        noTerminals.add(noTerminal.concat("'"));
+        nonterminals.add(nonterminal.concat("'"));
         var sbStr = firstPart.append(secondPart).toString();
 
         return removeChainLastOrCharacter(sbStr);
@@ -128,7 +122,7 @@ public class ProductionUtils {
     private static void performsStep02(int n, int i, Map<Integer, Production> productionMap) {
         var currentProduction = productionMap.get(i);
         if (isProductionContainsLeftRecursion(currentProduction)) {
-            String productionNoTerminal = currentProduction.getNoTerminal();
+            String currentProductionNonterminal = currentProduction.getNonterminal();
 
             List<String> alpha = new ArrayList<>();
             List<String> beta = new ArrayList<>();
@@ -136,18 +130,18 @@ public class ProductionUtils {
             String[] productionChains = getProductionChainsArray(currentProduction);
 
             for (String chain : productionChains) {
-                if (chain.substring(0, 1).equals(productionNoTerminal)) {
+                if (chain.substring(0, 1).equals(currentProductionNonterminal)) {
                     alpha.add(chain.substring(1));
                 } else {
                     beta.add(chain);
                 }
             }
-            var currentProductionModifiedChain = getProductionChainStr(beta, productionNoTerminal);
+            var currentProductionModifiedChain = getProductionChainStr(beta, currentProductionNonterminal);
             currentProduction.setChain(currentProductionModifiedChain);
-            var primNoTerminalProd = productionNoTerminal.concat("'");
-            var primChain = getProductionChainStr(alpha, productionNoTerminal);
-            var primeProd = new Production(primNoTerminalProd, primChain);
-            productionMap.put(productionMap.size() + 1, primeProd);
+            var newNonterminalProduction = currentProductionNonterminal.concat("'");
+            var newNonterminalChain = getProductionChainStr(alpha, currentProductionNonterminal);
+            var newProduction = new Production(newNonterminalProduction, newNonterminalChain);
+            productionMap.put(productionMap.size() + 1, newProduction);
         }
         performsStep03(n, i, productionMap);
     }
@@ -163,13 +157,13 @@ public class ProductionUtils {
 
     private static void performsStep04(int n, int i, int j, Map<Integer, Production> productionsMap) {
         var ai = productionsMap.get(i);
-        var result = new Production(ai.getNoTerminal());
+        var result = new Production(ai.getNonterminal());
         var aiChains = getProductionChainsArray(ai);
 
         for (String chain : aiChains) {
-            int firstNoTerminalIndex = getProductionNoTerminalIndex(chain.substring(0, 1));
+            int firstNonterminalIndex = getProductionNonterminalIndex(chain.substring(0, 1));
             var resultChain = new StringBuilder();
-            if (firstNoTerminalIndex >= 0 && firstNoTerminalIndex + 1 == j) {
+            if (firstNonterminalIndex >= 0 && firstNonterminalIndex + 1 == j) {
                 List<String> betas = new ArrayList<>();
                 var alpha = chain.substring(1);
                 var aj = productionsMap.get(j);
@@ -287,18 +281,18 @@ public class ProductionUtils {
     }
 
     private static void leftFactorsProduction(Production production, List<Production> productions) {
-        var noTerminal = production.getNoTerminal();
+        var nonterminal = production.getNonterminal();
         var chains = getProductionChainsArray(production);
         var alpha = findMaxChainFactor(chains);
         Set<String> betas = new HashSet<>();
 
-        var factor = getFactor(noTerminal);
+        var factor = getFactor(nonterminal);
         var firstAlphaIndex = createBetaListReturnFirstAlphaIndex(chains, alpha, betas);
 
         Production productionToAdd = new Production(factor, getBetasProductionStr(betas));
         Production productionByChain = getProductionByChain(productions, productionToAdd);
-        boolean canAddProduction = factor.equals(productionByChain.getNoTerminal());
-        factor = productionByChain.getNoTerminal();
+        boolean canAddProduction = factor.equals(productionByChain.getNonterminal());
+        factor = productionByChain.getNonterminal();
 
         String modifiedChain = modifyChain(alpha, chains, firstAlphaIndex, factor);
         modifyProduction(modifiedChain, production, canAddProduction, productionToAdd, productions);
@@ -316,8 +310,8 @@ public class ProductionUtils {
                     }
                 }
             }
-            if (!noTerminals.contains(factor)) {
-                noTerminals.add(factor);
+            if (!nonterminals.contains(factor)) {
+                nonterminals.add(factor);
             }
         }
 
@@ -356,24 +350,24 @@ public class ProductionUtils {
         return firstAlphaIndex;
     }
 
-    private static String getFactor(String noTerminal) {
-        StringBuilder sb = new StringBuilder(noTerminal.contains("'") ? noTerminal : noTerminal.concat("'"));
-        if (noTerminals.contains(sb.toString())) {
+    private static String getFactor(String nonterminal) {
+        StringBuilder sb = new StringBuilder(nonterminal.contains("'") ? nonterminal : nonterminal.concat("'"));
+        if (nonterminals.contains(sb.toString())) {
             var i = 0;
             var j = 0;
             var quotationMark = getQuotationsMark(j);
-            var newNoTerminal = new StringBuilder(potentialsNoTerminals[i].concat(quotationMark));
+            var newNonterminal = new StringBuilder(POTENTIALS_NONTERMINALS[i].concat(quotationMark));
             do {
                 i++;
-                if (i == potentialsNoTerminals.length) {
+                if (i == POTENTIALS_NONTERMINALS.length) {
                     i = 0;
                     j++;
                     quotationMark = getQuotationsMark(j);
                 }
-                newNoTerminal = new StringBuilder(potentialsNoTerminals[i].concat(quotationMark));
-            } while (noTerminals.contains(newNoTerminal.toString()));
+                newNonterminal = new StringBuilder(POTENTIALS_NONTERMINALS[i].concat(quotationMark));
+            } while (nonterminals.contains(newNonterminal.toString()));
 
-            return newNoTerminal.toString();
+            return newNonterminal.toString();
         }
         return sb.toString();
     }

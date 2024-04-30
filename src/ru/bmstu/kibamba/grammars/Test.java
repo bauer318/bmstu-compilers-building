@@ -1,9 +1,6 @@
-package ru.bmstu.kibamba.grammar;
+package ru.bmstu.kibamba.grammars;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Test {
     public static void main(String[] args) {
@@ -70,5 +67,55 @@ public class Test {
 
         /*var a = ProductionUtils.findMaxChainFactor(chain5.split("\\|"));
         System.out.println(a);*/
+
+        Set<String> n1 = new LinkedHashSet<>();
+        n1.add("S");
+        n1.add("A");
+        n1.add("B");
+        n1.add("C");
+        Set<String> n2 = Set.of("B", "C");
+        Set<String> t1 = new LinkedHashSet<>();
+        t1.add("a");
+        t1.add("b");
+        List<Production> p1 = List.of(new Production("S", "aA|bB"),
+                new Production("A", "bAa"),
+                new Production("B", "aB|bS|a|b"),
+                new Production("C", "BaA"));
+        List<Production> p2 = List.of(new Production("O", "BC|a"), new Production("F", "B|C"));
+        String s1 = "S";
+
+        Grammar g1 = new Grammar(n1, t1, p1, s1);
+
+        var a = LanguageNonEmptinessChecker.performStep01(g1);
+
+        /*var a = ProductionUtils.getProductionTokenArray("a'''B'cbA''a");
+        for (String st : a) {
+            System.out.println(st);
+        }*/
+        //Grammar g2 = g1.clone();
+        /*g2.setNonterminals(n2);
+        g2.setProductions(p2);*/
+        /*System.out.println("N1");
+        for(String st : g1.getNonterminals()){
+            System.out.print(st+" ");
+        }*/
+        /*System.out.println("N2");
+        for(String st : g1.getNonterminals()){
+            System.out.println(st);
+        }*/
+        /*System.out.println("\nT1");
+        for(String st : g1.getTerminals()){
+            System.out.println(st);
+        }
+
+        System.out.println("P1");
+        for(Production st : g1.getProductions()){
+            System.out.println(st);
+        }*/
+        /*System.out.println("P2");
+        for(Production st : g2.getProductions()){
+            System.out.println(st);
+        }*/
+
     }
 }
