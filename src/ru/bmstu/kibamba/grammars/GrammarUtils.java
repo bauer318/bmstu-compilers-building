@@ -181,16 +181,17 @@ public class GrammarUtils {
         List<ru.bmstu.kibamba.dto.Production> result = new ArrayList<>();
         for (Production production : productions) {
             var chains = getProductionChainsArray(production);
-            List<Symbol> symbols = new ArrayList<>();
             var lhs = new Lhs(production.getNonterminal());
             for (String chain : chains) {
                 var tokens = getProductionTokenArray(chain);
+                List<Symbol> symbols = new ArrayList<>();
                 for (String token : tokens) {
                     symbols.add(new Symbol(token, token));
                 }
+                var rhs = new Rhs(symbols);
+                result.add(new ru.bmstu.kibamba.dto.Production(lhs, rhs));
             }
-            var rhs = new Rhs(symbols);
-            result.add(new ru.bmstu.kibamba.dto.Production(lhs, rhs));
+
         }
         return result;
     }

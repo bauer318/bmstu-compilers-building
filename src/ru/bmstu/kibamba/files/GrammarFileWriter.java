@@ -3,7 +3,6 @@ package ru.bmstu.kibamba.files;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import ru.bmstu.kibamba.grammars.Grammar;
-import ru.bmstu.kibamba.grammars.GrammarUtils;
 import ru.bmstu.kibamba.grammars.Production;
 
 import java.io.FileWriter;
@@ -64,9 +63,10 @@ public class GrammarFileWriter {
     }
 
     public static void writeGrammarJsonFile(Grammar grammar, String grammarName, String fileName) {
-        ru.bmstu.kibamba.dto.Grammar gd = buildGrammarDTO(grammar, grammarName.replace("'","\\'"));
+        ru.bmstu.kibamba.dto.Grammar gd = buildGrammarDTO(grammar, grammarName);
         GsonBuilder builder = new GsonBuilder();
         builder.setPrettyPrinting().serializeNulls();
+        builder.disableHtmlEscaping();
         Gson gson = builder.create();
         var json = gson.toJson(gd);
         try {
