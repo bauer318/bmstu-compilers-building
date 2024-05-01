@@ -1,0 +1,143 @@
+{
+  "name": "G0",
+  "terminalSymbols": [
+    {
+      "name": "ADD",
+      "spell": "+"
+    },
+    {
+      "name": "MUL",
+      "spell": "*"
+    },
+    {
+      "name": "LPAREN",
+      "spell": "("
+    },
+    {
+      "name": "RPAREN",
+      "spell": ")"
+    },
+    {
+      "name": "IDENT",
+      "spell": "a"
+    }
+  ],
+  "nonterminalSymbols": [
+    {
+      "name": "E"
+    },
+    {
+      "name": "T"
+    },
+    {
+      "name": "F"
+    }
+  ],
+  "productions": [
+    {
+      "lhs": {
+        "name": "E"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": "E"
+          },
+          {
+            "type": "NONTERM",
+            "name": "+"
+          },
+          {
+            "type": "NONTERM",
+            "name": "T"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "E"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": "T"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "T"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": "T"
+          },
+          {
+            "type": "NONTERM",
+            "name": "*"
+          },
+          {
+            "type": "NONTERM",
+            "name": "F"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "T"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": "F"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "F"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": "("
+          },
+          {
+            "type": "NONTERM",
+            "name": "E"
+          },
+          {
+            "type": "NONTERM",
+            "name": ")"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "F"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "TERM",
+            "name": "IDENT"
+          }
+        ]
+      }
+    }
+  ],
+  "startSymbol": {
+    "name": "E"
+  }
+}

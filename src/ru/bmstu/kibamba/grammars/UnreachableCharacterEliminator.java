@@ -59,7 +59,8 @@ public class UnreachableCharacterEliminator {
         return performStep03(clonedGrammar, currentFirstSymbols, prevFirstSymbols);
     }
 
-    private static Set<String> performStep03(Grammar clonedGrammar, Set<String> currentFirstSymbols, Set<String> prevFirstSymbols) {
+    private static Set<String> performStep03(Grammar clonedGrammar, Set<String> currentFirstSymbols,
+                                             Set<String> prevFirstSymbols) {
         if (!currentFirstSymbols.equals(prevFirstSymbols)) {
             return performStep02(clonedGrammar, currentFirstSymbols);
         } else {

@@ -22,10 +22,17 @@ public class LanguageNonEmptinessChecker {
         for (Production production : grammar.getProductions()) {
             var chains = getProductionChainsArray(production);
             for (String chain : chains) {
-                if (isAlphaBelongSet(chain, clonedGrammar.getTerminals()) ||
-                        isAlphaBelongSet(chain, grammar.getTerminals())) {
+                var tokens = getProductionTokenArray(chain);
+                var canAddProduction = true;
+                for (String token : tokens) {
+                    if (!(isAlphaBelongSet(token, nENonterminals) ||
+                            isAlphaBelongSet(token, grammar.getTerminals()))) {
+                        canAddProduction = false;
+                        break;
+                    }
+                }
+                if (canAddProduction) {
                     productions.add(new Production(production.getNonterminal(), chain));
-
                 }
             }
         }
@@ -59,7 +66,8 @@ public class LanguageNonEmptinessChecker {
         return performStep03(grammar, currentNonterminals, predNonterminals);
     }
 
-    private static Set<String> performStep03(Grammar grammar, Set<String> currentNonterminals, Set<String> predNonterminals) {
+    private static Set<String> performStep03(Grammar grammar, Set<String> currentNonterminals,
+                                             Set<String> predNonterminals) {
         if (!currentNonterminals.equals(predNonterminals)) {
             return performStep02(grammar, currentNonterminals);
         } else {
@@ -75,7 +83,5 @@ public class LanguageNonEmptinessChecker {
             System.out.println("НЕТ");
         }
     }
-
-
 
 }

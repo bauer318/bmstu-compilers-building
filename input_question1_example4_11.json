@@ -1,0 +1,122 @@
+{
+  "name": "G0",
+  "terminalSymbols": [
+    {
+      "name": "IDENT",
+      "spell": "i"
+    },
+    {
+      "name": "IDENT",
+      "spell": "t"
+    },
+    {
+      "name": "IDENT",
+      "spell": "e"
+    },
+    {
+      "name": "IDENT",
+      "spell": "a"
+    },
+    {
+      "name": "IDENT",
+      "spell": "b"
+    }
+  ],
+  "nonterminalSymbols": [
+    {
+      "name": "S"
+    },
+    {
+      "name": "E"
+    }
+  ],
+  "productions": [
+    {
+      "lhs": {
+        "name": "S"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "TERM",
+            "name": "IDENT"
+          },
+          {
+            "type": "NONTERM",
+            "name": "E"
+          },
+          {
+            "type": "TERM",
+            "name": "IDENT"
+          },
+          {
+            "type": "NONTERM",
+            "name": "S"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "S"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "TERM",
+            "name": "IDENT"
+          },
+          {
+            "type": "NONTERM",
+            "name": "E"
+          },
+          {
+            "type": "TERM",
+            "name": "IDENT"
+          },
+          {
+            "type": "NONTERM",
+            "name": "S"
+          },
+          {
+            "type": "TERM",
+            "name": "IDENT"
+          },
+          {
+            "type": "NONTERM",
+            "name": "S"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "S"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "TERM",
+            "name": "IDENT"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "E"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "TERM",
+            "name": "IDENT"
+          }
+        ]
+      }
+    }
+  ],
+  "startSymbol": {
+    "name": "S"
+  }
+}

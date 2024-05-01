@@ -20,28 +20,33 @@ public class Main {
                 "input_question2_example_2_22",
                 "input_question2_task_2_4_6"
         };
-        var firstQuestionFileName = LEFT_RECURSION_TEST_FILENAMES[3];
-        var leftRecursionModifiedGrammarFileName = firstQuestionFileName.replace("input", "output");
-        var leftFactorizedGrammarFileName = firstQuestionFileName.replace("input", "output_left_fact");
+        /*var firstQuestionFileName = LEFT_RECURSION_TEST_FILENAMES[3];
+        var leftRecursionModifiedGrammarFileName = firstQuestionFileName
+                .replace("input", "output");
+        var leftFactorizedGrammarFileName = firstQuestionFileName
+                .replace("input", "output_left_fact");
 
         Grammar grammarToEliminateLeftRecursion = GrammarFileReader.readGrammar(firstQuestionFileName);
-        GrammarFileWriter.writeGrammarJsonFile(grammarToEliminateLeftRecursion, "G0", firstQuestionFileName);
 
-        Grammar leftRecursionModifiedGrammar = LeftRecursionEliminator.removeLeftRecursion(grammarToEliminateLeftRecursion,
+        Grammar leftRecursionModifiedGrammar = LeftRecursionEliminator
+                .removeLeftRecursion(grammarToEliminateLeftRecursion,
                 false);
         GrammarFileWriter.writeGrammar(leftRecursionModifiedGrammar, leftRecursionModifiedGrammarFileName);
-        GrammarFileWriter.writeGrammarJsonFile(leftRecursionModifiedGrammar, "G1", leftRecursionModifiedGrammarFileName);
+        GrammarFileWriter.writeGrammarJsonFile(leftRecursionModifiedGrammar, "G1",
+                leftRecursionModifiedGrammarFileName);
 
         Grammar leftFactorizedGrammar = LeftRecursionEliminator.leftFactorsProduction(leftRecursionModifiedGrammar);
         GrammarFileWriter.writeGrammar(leftFactorizedGrammar, leftFactorizedGrammarFileName);
-        GrammarFileWriter.writeGrammarJsonFile(leftFactorizedGrammar, "G1'", leftFactorizedGrammarFileName);
+        GrammarFileWriter.writeGrammarJsonFile(leftFactorizedGrammar, "G1'",
+                leftFactorizedGrammarFileName);*/
 
-        var secondQuestionFileName = USELESS_SYMBOLS_ELIMINATING_TEST_FILENAMES[0];
-        var grammarWithOnlyUselessNonterminalsFileName = secondQuestionFileName.replace("input", "output_useless");
-        var grammarWithOnlyReachableCharacterFileName = secondQuestionFileName.replace("input", "output_reachable");
+        var secondQuestionFileName = USELESS_SYMBOLS_ELIMINATING_TEST_FILENAMES[1];
+        var grammarWithOnlyUselessNonterminalsFileName = secondQuestionFileName
+                .replace("input", "output_useless");
+        var grammarWithOnlyReachableCharacterFileName = secondQuestionFileName
+                .replace("input", "output_reachable");
 
         Grammar grammarToEliminateUselessCharacters = GrammarFileReader.readGrammar(secondQuestionFileName);
-        GrammarFileWriter.writeGrammarJsonFile(grammarToEliminateUselessCharacters, "G0", secondQuestionFileName);
 
         Grammar grammarWithOnlyUselessNonterminals = LanguageNonEmptinessChecker.
                 eliminatesUnnecessaryNonterminals(grammarToEliminateUselessCharacters);
@@ -52,7 +57,7 @@ public class Main {
         Grammar grammarWithOnlyReachableCharacters = UnreachableCharacterEliminator
                 .eliminatesUnreachableCharacter(grammarWithOnlyUselessNonterminals);
         GrammarFileWriter.writeGrammar(grammarWithOnlyReachableCharacters, grammarWithOnlyReachableCharacterFileName);
-        GrammarFileWriter.writeGrammarJsonFile(grammarWithOnlyReachableCharacters, "G1'",
+        GrammarFileWriter.writeGrammarJsonFile(grammarWithOnlyReachableCharacters, "G'",
                 grammarWithOnlyReachableCharacterFileName);
 
 
