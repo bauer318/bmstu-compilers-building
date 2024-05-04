@@ -20,7 +20,7 @@ public class Main {
                 "input_question2_example_2_22",
                 "input_question2_task_2_4_6"
         };
-        /*var firstQuestionFileName = LEFT_RECURSION_TEST_FILENAMES[3];
+        var firstQuestionFileName = LEFT_RECURSION_TEST_FILENAMES[0];
         var leftRecursionModifiedGrammarFileName = firstQuestionFileName
                 .replace("input", "output");
         var leftFactorizedGrammarFileName = firstQuestionFileName
@@ -30,7 +30,7 @@ public class Main {
 
         Grammar leftRecursionModifiedGrammar = LeftRecursionEliminator
                 .removeLeftRecursion(grammarToEliminateLeftRecursion,
-                false);
+                true);
         GrammarFileWriter.writeGrammar(leftRecursionModifiedGrammar, leftRecursionModifiedGrammarFileName);
         GrammarFileWriter.writeGrammarJsonFile(leftRecursionModifiedGrammar, "G1",
                 leftRecursionModifiedGrammarFileName);
@@ -38,7 +38,7 @@ public class Main {
         Grammar leftFactorizedGrammar = LeftRecursionEliminator.leftFactorsProduction(leftRecursionModifiedGrammar);
         GrammarFileWriter.writeGrammar(leftFactorizedGrammar, leftFactorizedGrammarFileName);
         GrammarFileWriter.writeGrammarJsonFile(leftFactorizedGrammar, "G1'",
-                leftFactorizedGrammarFileName);*/
+                leftFactorizedGrammarFileName);
 
         var secondQuestionFileName = USELESS_SYMBOLS_ELIMINATING_TEST_FILENAMES[1];
         var grammarWithOnlyUselessNonterminalsFileName = secondQuestionFileName
