@@ -1,64 +1,33 @@
-import ru.bmstu.kibamba.files.GrammarFileReader;
-import ru.bmstu.kibamba.files.GrammarFileWriter;
-import ru.bmstu.kibamba.grammars.Grammar;
-import ru.bmstu.kibamba.grammars.LanguageNonEmptinessChecker;
-import ru.bmstu.kibamba.grammars.LeftRecursionEliminator;
-import ru.bmstu.kibamba.grammars.UnreachableCharacterEliminator;
+import ru.bmstu.kibamba.models.*;
+import ru.bmstu.kibamba.parsing.ParserUtils;
 
-import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class Main {
     public static void main(String[] args) {
-        String[] LEFT_RECURSION_TEST_FILENAMES = {
-                "input_question1_example2_27",
-                "input_question1_example4_7",
-                "input_question1_example4_9",
-                "input_question1_example4_11"
-        };
+        Set<Nonterminal> nonterminals = new LinkedHashSet<>();
+        var nonTerminalA = new Nonterminal("A");
+        var nonTerminalB = new Nonterminal("B");
+        nonterminals.add(nonTerminalA);
+        nonterminals.add(nonTerminalB);
 
-        String[] USELESS_SYMBOLS_ELIMINATING_TEST_FILENAMES = {
-                "input_question2_example_2_22",
-                "input_question2_task_2_4_6"
-        };
-        var firstQuestionFileName = LEFT_RECURSION_TEST_FILENAMES[0];
-        var leftRecursionModifiedGrammarFileName = firstQuestionFileName
-                .replace("input", "output");
-        var leftFactorizedGrammarFileName = firstQuestionFileName
-                .replace("input", "output_left_fact");
+        Set<Terminal> terminals = new LinkedHashSet<>();
+        var terminal = new Terminal("a","a");
+        terminals.add(terminal);
 
-        Grammar grammarToEliminateLeftRecursion = GrammarFileReader.readGrammar(firstQuestionFileName);
+        var epsilon = new GrammarSymbol("£");
+        Set<Production> productions = new LinkedHashSet<>();
+        Set<GrammarSymbol> chain = new LinkedHashSet<>();
+        chain.add(nonTerminalB);
+        //chain.add(nonTerminalA);
+        productions.add(new Production(nonTerminalA,new ProductionChain(chain)));
+        chain = new LinkedHashSet<>();
+        //chain.add(nonTerminal);
+        chain.add(epsilon);
+        productions.add(new Production(nonTerminalB,new ProductionChain(chain)));
 
-        Grammar leftRecursionModifiedGrammar = LeftRecursionEliminator
-                .removeLeftRecursion(grammarToEliminateLeftRecursion,
-                true);
-        GrammarFileWriter.writeGrammar(leftRecursionModifiedGrammar, leftRecursionModifiedGrammarFileName);
-        GrammarFileWriter.writeGrammarJsonFile(leftRecursionModifiedGrammar, "G1",
-                leftRecursionModifiedGrammarFileName);
-
-        Grammar leftFactorizedGrammar = LeftRecursionEliminator.leftFactorsProduction(leftRecursionModifiedGrammar);
-        GrammarFileWriter.writeGrammar(leftFactorizedGrammar, leftFactorizedGrammarFileName);
-        GrammarFileWriter.writeGrammarJsonFile(leftFactorizedGrammar, "G1'",
-                leftFactorizedGrammarFileName);
-
-        var secondQuestionFileName = USELESS_SYMBOLS_ELIMINATING_TEST_FILENAMES[1];
-        var grammarWithOnlyUselessNonterminalsFileName = secondQuestionFileName
-                .replace("input", "output_useless");
-        var grammarWithOnlyReachableCharacterFileName = secondQuestionFileName
-                .replace("input", "output_reachable");
-
-        Grammar grammarToEliminateUselessCharacters = GrammarFileReader.readGrammar(secondQuestionFileName);
-
-        Grammar grammarWithOnlyUselessNonterminals = LanguageNonEmptinessChecker.
-                eliminatesUnnecessaryNonterminals(grammarToEliminateUselessCharacters);
-        GrammarFileWriter.writeGrammar(grammarWithOnlyUselessNonterminals, grammarWithOnlyUselessNonterminalsFileName);
-        GrammarFileWriter.writeGrammarJsonFile(grammarWithOnlyUselessNonterminals, "G1",
-                grammarWithOnlyUselessNonterminalsFileName);
-
-        Grammar grammarWithOnlyReachableCharacters = UnreachableCharacterEliminator
-                .eliminatesUnreachableCharacter(grammarWithOnlyUselessNonterminals);
-        GrammarFileWriter.writeGrammar(grammarWithOnlyReachableCharacters, grammarWithOnlyReachableCharacterFileName);
-        GrammarFileWriter.writeGrammarJsonFile(grammarWithOnlyReachableCharacters, "G'",
-                grammarWithOnlyReachableCharacterFileName);
+        System.out.println(ParserUtils.isGeneratesZeroOrMoreEpsilon(nonTerminalA,productions,nonterminals));
 
 
     }
