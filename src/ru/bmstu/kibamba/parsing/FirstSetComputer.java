@@ -7,6 +7,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static ru.bmstu.kibamba.parsing.ParserUtils.*;
+
 public class FirstSetComputer {
     private final Grammar grammar;
     private final Map<GrammarSymbol, Set<GrammarSymbol>> firstSets;
@@ -31,26 +33,13 @@ public class FirstSetComputer {
             var symbols = production.getChain().getChain();
             for (GrammarSymbol symbol : symbols) {
                 if (!firstSets.containsKey(symbol) &&
-                        !isTerminal(symbol) && !isEpsilon(symbol)) {
+                        !isTerminal(symbol, grammar.getTerminals()) &&
+                        !isEpsilon(symbol)) {
                     firstSets.put(symbol, new LinkedHashSet<>());
                 }
             }
         }
     }
-
-    private boolean isTerminal(GrammarSymbol grammarSymbol) {
-        for (Terminal terminal : grammar.getTerminals()) {
-            if (terminal.getName().equals(grammarSymbol.getName())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean isEpsilon(GrammarSymbol grammarSymbol) {
-        return grammarSymbol.getName().equals("£");
-    }
-
     public void computerFirstSets() {
         boolean changed;
         do {
@@ -60,10 +49,11 @@ public class FirstSetComputer {
                 Set<GrammarSymbol> firstSet = firstSets.get(nonterminal);
                 int originalSize = firstSet.size();
 
-                for (Production production : getNonterminalProductions(nonterminal)) {
+                for (Production production : getNonterminalProductions(nonterminal, grammar.getProductions())) {
                     var symbols = production.getChain().getChain();
                     for (GrammarSymbol symbol : symbols) {
-                        if (isTerminal(symbol) || isEpsilon(symbol)) {
+                        if (isTerminal(symbol, grammar.getTerminals())
+                                || isEpsilon(symbol)) {
                             firstSet.add(symbol);
                             break;
                         } else {
@@ -98,18 +88,6 @@ public class FirstSetComputer {
             }
 
         } while (changed);
-    }
-
-    private Set<Production> getNonterminalProductions(Nonterminal nonterminal) {
-        Set<Production> productions = new LinkedHashSet<>();
-
-        for (Production production : grammar.getProductions()) {
-            if (production.getNonterminal().equals(nonterminal)) {
-                productions.add(production);
-            }
-        }
-
-        return productions;
     }
 
     public Map<GrammarSymbol, Set<GrammarSymbol>> getFirstSets() {

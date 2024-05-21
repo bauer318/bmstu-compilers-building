@@ -1,5 +1,6 @@
 import ru.bmstu.kibamba.models.*;
 import ru.bmstu.kibamba.parsing.FirstSetComputer;
+import ru.bmstu.kibamba.parsing.FollowSetComputer;
 import ru.bmstu.kibamba.parsing.ParserUtils;
 
 import java.util.Collections;
@@ -70,6 +71,11 @@ public class Main {
         computer.computerFirstSets();
 
         var a = computer.getFirstSets();
+
+        FollowSetComputer followSetComputer = new FollowSetComputer(grammar,a);
+        followSetComputer.computeFollowSets();
+
+        var b = followSetComputer.getFollowSets();
 
        //var firsts = ParserUtils.computesFirst(nonterminals, terminals, productions);
 
