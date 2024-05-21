@@ -1,10 +1,14 @@
-7
-S E T F R A M
-12
-var const ( ) < <= = <> > >= + - * /
+10
+S L O X E T F R A M
+14
+var const ( ) < <= = <> > >= + - * / begin end ; :=
 19
-S -> ERE
-S -> E
+S -> begin L end
+L -> O
+L -> L;O
+O -> var := X
+X -> ERE
+X -> E
 E -> EAT
 E -> T
 T -> TMF

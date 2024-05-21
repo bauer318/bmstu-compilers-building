@@ -36,6 +36,36 @@ public class Term {
             case "const":
                 this.name = TermType.CONST;
                 break;
+            case "begin":
+                this.name = TermType.BEGIN;
+                break;
+            case "end":
+                this.name = TermType.END;
+                break;
+            case "<":
+                this.name = TermType.L;
+                break;
+            case "<=":
+                this.name = TermType.LE;
+                break;
+            case "=":
+                this.name = TermType.E;
+                break;
+            case "<>":
+                this.name = TermType.NE;
+                break;
+            case ">":
+                this.name = TermType.G;
+                break;
+            case ">=":
+                this.name = TermType.GE;
+                break;
+            case ";":
+                this.name = TermType.SEMICOLON;
+                break;
+            case ":=":
+                this.name = TermType.IS;
+                break;
             default:
                 this.name = TermType.IDENT;
         }

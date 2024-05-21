@@ -1,0 +1,580 @@
+{
+  "name": "G1",
+  "terminalSymbols": [
+    {
+      "name": "BEGIN",
+      "spell": "begin"
+    },
+    {
+      "name": "END",
+      "spell": "end"
+    },
+    {
+      "name": "IS",
+      "spell": ":="
+    },
+    {
+      "name": "IDENT",
+      "spell": "var"
+    },
+    {
+      "name": "CONST",
+      "spell": "const"
+    },
+    {
+      "name": "LPAREN",
+      "spell": "("
+    },
+    {
+      "name": "RPAREN",
+      "spell": ")"
+    },
+    {
+      "name": "L",
+      "spell": "<"
+    },
+    {
+      "name": "LE",
+      "spell": "<="
+    },
+    {
+      "name": "E",
+      "spell": "="
+    },
+    {
+      "name": "NE",
+      "spell": "<>"
+    },
+    {
+      "name": "G",
+      "spell": ">"
+    },
+    {
+      "name": "GE",
+      "spell": ">="
+    },
+    {
+      "name": "ADD",
+      "spell": "+"
+    },
+    {
+      "name": "SUB",
+      "spell": "-"
+    },
+    {
+      "name": "MUL",
+      "spell": "*"
+    },
+    {
+      "name": "DIV",
+      "spell": "/"
+    },
+    {
+      "name": "SEMICOLON",
+      "spell": ";"
+    }
+  ],
+  "nonterminalSymbols": [
+    {
+      "name": "S"
+    },
+    {
+      "name": "L"
+    },
+    {
+      "name": "O"
+    },
+    {
+      "name": "X"
+    },
+    {
+      "name": "E"
+    },
+    {
+      "name": "T"
+    },
+    {
+      "name": "F"
+    },
+    {
+      "name": "R"
+    },
+    {
+      "name": "A"
+    },
+    {
+      "name": "M"
+    },
+    {
+      "name": "L'"
+    },
+    {
+      "name": "E'"
+    },
+    {
+      "name": "T'"
+    }
+  ],
+  "productions": [
+    {
+      "lhs": {
+        "name": "S"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "TERM",
+            "name": "IDENT"
+          },
+          {
+            "type": "TERM",
+            "name": "IDENT"
+          },
+          {
+            "type": "NONTERM",
+            "name": "L"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "L"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": "O"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "L"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": "O"
+          },
+          {
+            "type": "NONTERM",
+            "name": "L'"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "O"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": ":="
+          },
+          {
+            "type": "TERM",
+            "name": "IDENT"
+          },
+          {
+            "type": "NONTERM",
+            "name": "X"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "X"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": "E"
+          },
+          {
+            "type": "NONTERM",
+            "name": "R"
+          },
+          {
+            "type": "NONTERM",
+            "name": "E"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "X"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": "E"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "E"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": "T"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "E"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": "T"
+          },
+          {
+            "type": "NONTERM",
+            "name": "E'"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "T"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": "F"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "T"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": "F"
+          },
+          {
+            "type": "NONTERM",
+            "name": "T'"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "F"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "TERM",
+            "name": "IDENT"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "F"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "TERM",
+            "name": "IDENT"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "F"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": "("
+          },
+          {
+            "type": "NONTERM",
+            "name": "E"
+          },
+          {
+            "type": "NONTERM",
+            "name": ")"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "R"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": "<"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "R"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": "<="
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "R"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": "="
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "R"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": "<>"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "R"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": ">"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "R"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": ">="
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "A"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": "+"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "A"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": "-"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "M"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": "*"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "M"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": "/"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "L'"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": ";"
+          },
+          {
+            "type": "NONTERM",
+            "name": "O"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "L'"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": ";"
+          },
+          {
+            "type": "NONTERM",
+            "name": "O"
+          },
+          {
+            "type": "NONTERM",
+            "name": "L'"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "E'"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": "A"
+          },
+          {
+            "type": "NONTERM",
+            "name": "T"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "E'"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": "A"
+          },
+          {
+            "type": "NONTERM",
+            "name": "T"
+          },
+          {
+            "type": "NONTERM",
+            "name": "E'"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "T'"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": "M"
+          },
+          {
+            "type": "NONTERM",
+            "name": "F"
+          }
+        ]
+      }
+    },
+    {
+      "lhs": {
+        "name": "T'"
+      },
+      "rhs": {
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": "M"
+          },
+          {
+            "type": "NONTERM",
+            "name": "F"
+          },
+          {
+            "type": "NONTERM",
+            "name": "T'"
+          }
+        ]
+      }
+    }
+  ],
+  "startSymbol": {
+    "name": "S"
+  }
+}

@@ -1,0 +1,35 @@
+13
+S L O X E T F R A M L' E' T' 
+18
+begin end := var const ( ) < <= = <> > >= + - * / ; 
+13
+S -> begin end L 
+L -> O 
+L -> O L' 
+O -> := var X 
+X -> E R E 
+X -> E 
+E -> T 
+E -> T E' 
+T -> F 
+T -> F T' 
+F -> var 
+F -> const 
+F -> ( E ) 
+R -> < 
+R -> <= 
+R -> = 
+R -> <> 
+R -> > 
+R -> >= 
+A -> + 
+A -> - 
+M -> * 
+M -> / 
+L' -> ; O 
+L' -> ; O L' 
+E' -> A T 
+E' -> A T E' 
+T' -> M F 
+T' -> M F T' 
+S

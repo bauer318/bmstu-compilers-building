@@ -96,18 +96,28 @@ public class GrammarUtils {
         return chain.split("\\|");
     }
 
+    private static String addTerm(String terminal, String chain, List<String> result) {
+        String chainResult = chain;
+        var length = chainResult.length();
+        chainResult = chainResult.replace(terminal, "");
+        if (length > chainResult.length()) {
+            result.add(terminal);
+        }
+        return chainResult;
+    }
+
     public static List<String> getProductionTokenArray(String chain) {
         List<String> result = new ArrayList<>();
-        var length = chain.length();
-        chain = chain.replace("id", "");
-        if (length > chain.length()) {
-            result.add("id");
-        }
-        length = chain.length();
-        chain = chain.replace("num", "");
-        if (length > chain.length()) {
-            result.add("num");
-        }
+        chain = addTerm("id", chain, result);
+        chain = addTerm("num", chain, result);
+        chain = addTerm("<=", chain, result);
+        chain = addTerm(">=", chain, result);
+        chain = addTerm("<>", chain, result);
+        chain = addTerm(":=", chain, result);
+        chain = addTerm("begin", chain, result);
+        chain = addTerm("end", chain, result);
+        chain = addTerm("const", chain, result);
+        chain = addTerm("var", chain, result);
 
         for (var i = 0; i < chain.length(); i++) {
             var j = i + 1;

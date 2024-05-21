@@ -41,7 +41,7 @@ public class Main {
         GrammarFileWriter.writeGrammarJsonFile(leftFactorizedGrammar, "G1'",
                 leftFactorizedGrammarFileName);
 
-        var secondQuestionFileName = USELESS_SYMBOLS_ELIMINATING_TEST_FILENAMES[1];
+        /*var secondQuestionFileName = USELESS_SYMBOLS_ELIMINATING_TEST_FILENAMES[1];
         var grammarWithOnlyUselessNonterminalsFileName = secondQuestionFileName
                 .replace("input", "output_useless");
         var grammarWithOnlyReachableCharacterFileName = secondQuestionFileName
@@ -59,7 +59,7 @@ public class Main {
                 .eliminatesUnreachableCharacter(grammarWithOnlyUselessNonterminals);
         GrammarFileWriter.writeGrammar(grammarWithOnlyReachableCharacters, grammarWithOnlyReachableCharacterFileName);
         GrammarFileWriter.writeGrammarJsonFile(grammarWithOnlyReachableCharacters, "G'",
-                grammarWithOnlyReachableCharacterFileName);
+                grammarWithOnlyReachableCharacterFileName);*/
 
 
     }

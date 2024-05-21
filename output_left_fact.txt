@@ -1,0 +1,38 @@
+19
+S L O X E T F R A M L' E' T' B X' C D R' G 
+16
+begin end := var const ( ) < = > + - * / ; £ 
+19
+S -> begin end L 
+L -> O B 
+O -> := var X 
+X -> E X' 
+E -> T C 
+T -> F D 
+F -> var 
+F -> const 
+F -> ( E ) 
+R -> < R' 
+R -> = 
+R -> > G 
+A -> + 
+A -> - 
+M -> * 
+M -> / 
+L' -> ; O B 
+E' -> A T C 
+T' -> M F D 
+B -> £ 
+B -> L' 
+X' -> R E 
+X' -> £ 
+C -> E' 
+C -> £ 
+D -> £ 
+D -> T' 
+R' -> £ 
+R' -> = 
+R' -> > 
+G -> £ 
+G -> = 
+S

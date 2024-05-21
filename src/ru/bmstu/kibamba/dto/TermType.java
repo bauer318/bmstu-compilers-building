@@ -8,5 +8,15 @@ public enum TermType {
     DIV,
     LPAREN,
     RPAREN,
-    CONST
+    CONST,
+    BEGIN,
+    END,
+    L,
+    G,
+    LE,
+    GE,
+    E,
+    NE,
+    IS,
+    SEMICOLON
 }
