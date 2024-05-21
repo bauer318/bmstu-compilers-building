@@ -1,13 +1,25 @@
-3
-A B C
-2
-a b 
-3
-A -> BC
-A -> a
-B -> CA
-B->Ab
-C->AB
-C->CC
-C->a
+7
+S E T F R A M
+12
+var const ( ) < <= = <> > >= + - * /
+19
+S -> ERE
+S -> E
+E -> EAT
+E -> T
+T -> TMF
+T -> F
+F -> var
+F -> const
+F -> (E)
+R -> <
+R -> <=
+R -> =
+R -> <>
+R -> >
+R -> >=
+A -> +
+A -> -
+M -> *
+M -> /
 S
