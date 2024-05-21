@@ -33,6 +33,9 @@ public class Term {
             case ")":
                 this.name = TermType.RPAREN;
                 break;
+            case "const":
+                this.name = TermType.CONST;
+                break;
             default:
                 this.name = TermType.IDENT;
         }

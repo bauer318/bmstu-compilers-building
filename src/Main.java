@@ -10,6 +10,7 @@ import java.util.Arrays;
 public class Main {
     public static void main(String[] args) {
         String[] LEFT_RECURSION_TEST_FILENAMES = {
+                "input",
                 "input_question1_example2_27",
                 "input_question1_example4_7",
                 "input_question1_example4_9",

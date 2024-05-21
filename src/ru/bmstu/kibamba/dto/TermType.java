@@ -7,5 +7,6 @@ public enum TermType {
     MUL,
     DIV,
     LPAREN,
-    RPAREN
+    RPAREN,
+    CONST
 }
