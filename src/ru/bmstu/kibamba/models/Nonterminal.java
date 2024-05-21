@@ -2,9 +2,8 @@ package ru.bmstu.kibamba.models;
 
 import java.util.Objects;
 
-public class Nonterminal extends GrammarSymbol {
+public class Nonterminal extends GrammarSymbol implements Cloneable {
     private boolean isStartSymbol;
-
     public Nonterminal(String name, boolean isStartSymbol) {
         super(name);
         this.isStartSymbol = isStartSymbol;
@@ -35,5 +34,12 @@ public class Nonterminal extends GrammarSymbol {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), isStartSymbol);
+    }
+
+    @Override
+    public Nonterminal clone() {
+        Nonterminal clone = (Nonterminal) super.clone();
+        clone.isStartSymbol = this.isStartSymbol;
+        return clone;
     }
 }

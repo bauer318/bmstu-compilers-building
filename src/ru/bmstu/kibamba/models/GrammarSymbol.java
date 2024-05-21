@@ -2,7 +2,7 @@ package ru.bmstu.kibamba.models;
 
 import java.util.Objects;
 
-public class GrammarSymbol {
+public class GrammarSymbol implements Cloneable {
     private String name;
 
     public GrammarSymbol(String name){
@@ -28,5 +28,16 @@ public class GrammarSymbol {
     @Override
     public int hashCode() {
         return Objects.hash(name);
+    }
+
+    @Override
+    public GrammarSymbol clone() {
+        try {
+            GrammarSymbol clone = (GrammarSymbol) super.clone();
+            clone.setName(this.getName());
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }
