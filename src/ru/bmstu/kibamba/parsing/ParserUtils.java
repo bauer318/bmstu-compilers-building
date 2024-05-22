@@ -1,5 +1,6 @@
 package ru.bmstu.kibamba.parsing;
 
+import ru.bmstu.kibamba.dto.TerminalFunctionResponse;
 import ru.bmstu.kibamba.models.*;
 
 import java.util.*;
@@ -17,6 +18,7 @@ public class ParserUtils {
         }
         return false;
     }
+
     public static boolean isNonterminal(GrammarSymbol symbol,
                                         Set<Nonterminal> nonterminals) {
         for (Nonterminal nonterminal : nonterminals) {
@@ -25,6 +27,26 @@ public class ParserUtils {
             }
         }
         return false;
+    }
+
+    public static TerminalFunctionResponse buildTerminalFunctionResponse(TreeNode treeNode) {
+        return new TerminalFunctionResponse(treeNode, true);
+    }
+
+    public static TerminalFunctionResponse buildTerminalFunctionResponse() {
+        return new TerminalFunctionResponse(false);
+    }
+
+    public static TreeNode buildNonterminalNode(String nonTerminalName) {
+        return new TreeNode(new Nonterminal(nonTerminalName));
+    }
+
+    public static TreeNode buildEpsilonNode() {
+        return new TreeNode(new GrammarSymbol("£"));
+    }
+
+    public static TreeNode buildTerminalNode(GrammarSymbol terminal) {
+        return new TreeNode(terminal);
     }
 
     public static Set<Production> getNonterminalProductions(GrammarSymbol nonterminal,

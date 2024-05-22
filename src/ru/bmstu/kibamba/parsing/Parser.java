@@ -1,10 +1,13 @@
 package ru.bmstu.kibamba.parsing;
 
+import ru.bmstu.kibamba.dto.TerminalFunctionResponse;
 import ru.bmstu.kibamba.models.Grammar;
 import ru.bmstu.kibamba.models.GrammarSymbol;
 import ru.bmstu.kibamba.models.Terminal;
 
 import java.util.List;
+
+import static ru.bmstu.kibamba.parsing.ParserUtils.*;
 
 public class Parser {
     private final Grammar grammar;
@@ -19,361 +22,356 @@ public class Parser {
         this.input = input;
     }
 
-    public GrammarSymbol next() {
+    public GrammarSymbol getCurrentInputSymbol() {
         return input.get(currentIndex);
     }
 
-    private boolean S() {
-        root = new TreeNode(grammar.getStart().getName());
-        var a = next();
+    private TerminalFunctionResponse S() {
+        TreeNode sNode = new TreeNode(grammar.getStart());
+        var a = getCurrentInputSymbol();
         if (a.equals(new Terminal("begin", "begin"))) {
             currentIndex++;
-            root.addChild(new TreeNode("begin"));
-            if (L()) {
-                a = next();
+            sNode.addChild(buildTerminalNode(a));
+            var l = L();
+            if (l.isResult()) {
+                sNode.addChild(l.getNode());
+                a = getCurrentInputSymbol();
                 if (a.equals(new Terminal("end", "end"))) {
-                    root.addChild(new TreeNode("end"));
-                    return true;
+                    sNode.addChild(buildTerminalNode(a));
+                    return buildTerminalFunctionResponse(sNode);
                 } else {
                     erFlag++;
                     printError(1, "end", a.getName());
-                    return false;
+                    return buildTerminalFunctionResponse();
                 }
             } else {
                 printError(2, "L", a.getName());
             }
         }
-        return false;
+        return buildTerminalFunctionResponse();
     }
 
-    private boolean L() {
-        TreeNode lNode = new TreeNode("L");
-        var a = next();
-        if (O()) {
-            lNode.addChild(new TreeNode("O"));
-            if (B()) {
-                lNode.addChild(new TreeNode("B"));
-                root.addChild(lNode);
-                return true;
+    private TerminalFunctionResponse L() {
+        TreeNode lNode = buildNonterminalNode("L");
+        var a = getCurrentInputSymbol();
+        var o = O();
+        if (o.isResult()) {
+            lNode.addChild(o.getNode());
+            var b = B();
+            if (b.isResult()) {
+                lNode.addChild(b.getNode());
+                return buildTerminalFunctionResponse(lNode);
             } else {
                 printError(3, " B after O ", a.getName());
-                return false;
+                return buildTerminalFunctionResponse();
             }
         }
         printError(4, "O", a.getName());
-        return false;
+        return buildTerminalFunctionResponse();
     }
 
-    private boolean B() {
-        TreeNode bNode = new TreeNode("B");
-        root.addChild(bNode);
-        if (LPrime()) {
-            bNode.addChild(new TreeNode("L'"));
-            return true;
+    private TerminalFunctionResponse B() {
+        TreeNode bNode = buildNonterminalNode("B");
+        var lPrime = LPrime();
+        if (lPrime.isResult()) {
+            bNode.addChild(lPrime.getNode());
+            return buildTerminalFunctionResponse(bNode);
         }
-        bNode.addChild(new TreeNode("£"));
-        return true;
+        bNode.addChild(buildEpsilonNode());
+        return buildTerminalFunctionResponse(bNode);
     }
 
-    private boolean O() {
-        TreeNode oNode = new TreeNode("O");
-        var a = next();
+    private TerminalFunctionResponse O() {
+        TreeNode oNode = buildNonterminalNode("O");
+        var a = getCurrentInputSymbol();
         if (a.equals(new Terminal("var", "var"))) {
-            oNode.addChild(new TreeNode("var"));
+            oNode.addChild(buildTerminalNode(a));
             currentIndex++;
-            a = next();
+            a = getCurrentInputSymbol();
             if (a.equals(new Terminal(":=", "is"))) {
-                oNode.addChild(new TreeNode(":="));
+                oNode.addChild(buildTerminalNode(a));
                 currentIndex++;
-                if (X()) {
-                    oNode.addChild(new TreeNode("X"));
-                    root.addChild(oNode);
-                    return true;
+                var x = X();
+                if (x.isResult()) {
+                    oNode.addChild(x.getNode());
+                    return buildTerminalFunctionResponse(oNode);
                 } else {
                     printError(6, "X", a.getName());
-                    return false;
+                    return buildTerminalFunctionResponse();
                 }
             } else {
                 printError(7, ":=", a.getName());
-                return false;
+                return buildTerminalFunctionResponse();
             }
         }
         printError(8, "var", a.getName());
-        return false;
+        return buildTerminalFunctionResponse();
     }
 
-    private boolean LPrime() {
-        TreeNode lPrimeNode = new TreeNode("L'");
-
-        var a = next();
+    private TerminalFunctionResponse LPrime() {
+        TreeNode lPrimeNode = buildNonterminalNode("L'");
+        var a = getCurrentInputSymbol();
         if (a.equals(new Terminal(";", "semicolon"))) {
-            lPrimeNode.addChild(new TreeNode(";"));
+            lPrimeNode.addChild(buildTerminalNode(a));
             currentIndex++;
-            if (O()) {
-                lPrimeNode.addChild(new TreeNode("O"));
-                if (B()) {
-                    lPrimeNode.addChild(new TreeNode("B"));
-                    root.addChild(lPrimeNode);
-                    return true;
+            var o = O();
+            if (o.isResult()) {
+                lPrimeNode.addChild(o.getNode());
+                var b = B();
+                if (b.isResult()) {
+                    lPrimeNode.addChild(b.getNode());
+                    return buildTerminalFunctionResponse(lPrimeNode);
                 } else {
                     printError(9, "B", a.getName());
-                    return false;
+                    return buildTerminalFunctionResponse();
                 }
             } else {
                 printError(10, "O", a.getName());
-                return false;
+                return buildTerminalFunctionResponse();
             }
         }
         printError(11, ";", a.getName());
-        return false;
+        return buildTerminalFunctionResponse();
     }
 
-    private boolean EPrime() {
-        TreeNode ePrimeNode = new TreeNode("E'");
-
-        if (A()) {
-            ePrimeNode.addChild(new TreeNode("A"));
-            if (T()) {
-                ePrimeNode.addChild(new TreeNode("T"));
-                if (C()) {
-                    ePrimeNode.addChild(new TreeNode("C"));
-                    root.addChild(ePrimeNode);
-                    return true;
+    private TerminalFunctionResponse EPrime() {
+        TreeNode ePrimeNode = buildNonterminalNode("E'");
+        var a = A();
+        if (a.isResult()) {
+            ePrimeNode.addChild(a.getNode());
+            var t = T();
+            if (t.isResult()) {
+                ePrimeNode.addChild(t.getNode());
+                var c = C();
+                if (c.isResult()) {
+                    ePrimeNode.addChild(c.getNode());
+                    return buildTerminalFunctionResponse(ePrimeNode);
                 }
                 printError(23, "C", "Others ");
-                return false;
+                return buildTerminalFunctionResponse();
             }
             printError(24, "T", "Others ");
-            return false;
+            return buildTerminalFunctionResponse();
         }
         printError(25, "A", "Others ");
-        return false;
+        return buildTerminalFunctionResponse();
     }
 
-    private boolean TPrime() {
-        TreeNode tPrimeNode = new TreeNode("T'");
-
-        if (M()) {
-            tPrimeNode.addChild(new TreeNode("M"));
-            if (F()) {
-                tPrimeNode.addChild(new TreeNode("F"));
-                if (D()) {
-                    tPrimeNode.addChild(new TreeNode("D"));
-                    root.addChild(tPrimeNode);
-                    return true;
+    private TerminalFunctionResponse TPrime() {
+        TreeNode tPrimeNode = buildNonterminalNode("T'");
+        var m = M();
+        if (m.isResult()) {
+            tPrimeNode.addChild(m.getNode());
+            var f = F();
+            if (f.isResult()) {
+                tPrimeNode.addChild(f.getNode());
+                var d = D();
+                if (d.isResult()) {
+                    tPrimeNode.addChild(d.getNode());
+                    return buildTerminalFunctionResponse(tPrimeNode);
                 }
                 printError(27, "D", "Others ");
-                return false;
+                return buildTerminalFunctionResponse();
             }
             printError(28, "F", "Others ");
-            return false;
+            return buildTerminalFunctionResponse();
         }
         printError(29, "M", "Others ");
-        return false;
+        return buildTerminalFunctionResponse();
     }
 
-    private boolean X() {
-        TreeNode xNode = new TreeNode("X");
-        var a = next();
-        if (E()) {
-            xNode.addChild(new TreeNode("E"));
-            if (XPrime()) {
-                xNode.addChild(new TreeNode("X'"));
-                root.addChild(xNode);
-                return true;
+    private TerminalFunctionResponse X() {
+        TreeNode xNode = buildNonterminalNode("X");
+        var a = getCurrentInputSymbol();
+        var e = E();
+        if (e.isResult()) {
+            xNode.addChild(e.getNode());
+            var xPrime = XPrime();
+            if (xPrime.isResult()) {
+                xNode.addChild(xPrime.getNode());
+                return buildTerminalFunctionResponse(xNode);
             }
             printError(12, "X'", a.getName());
 
         }
         printError(13, "E", a.getName());
-        return false;
+        return buildTerminalFunctionResponse();
     }
 
-    private boolean XPrime() {
-        TreeNode xPrimeNode = new TreeNode("X'");
-        if (R()) {
-            xPrimeNode.addChild(new TreeNode("R"));
-            if (E()) {
-                xPrimeNode.addChild(new TreeNode("E"));
-                root.addChild(xPrimeNode);
-                return true;
+    private TerminalFunctionResponse XPrime() {
+        TreeNode xPrimeNode = buildNonterminalNode("X'");
+        var r = R();
+        if (r.isResult()) {
+            xPrimeNode.addChild(r.getNode());
+            var e = E();
+            if (e.isResult()) {
+                xPrimeNode.addChild(e.getNode());
+                return buildTerminalFunctionResponse(xPrimeNode);
             }
             printError(14, "E", "Others ");
-            return false;
+            return buildTerminalFunctionResponse();
         }
-        xPrimeNode.addChild(new TreeNode("£"));
-        root.addChild(xPrimeNode);
-        return true;
+        xPrimeNode.addChild(buildEpsilonNode());
+        return buildTerminalFunctionResponse(xPrimeNode);
     }
 
-    private boolean E() {
-        TreeNode eNode = new TreeNode("E");
-        if (T()) {
-            eNode.addChild(new TreeNode("T"));
-            if (C()) {
-                eNode.addChild(new TreeNode("C"));
-                root.addChild(eNode);
-                return true;
+    private TerminalFunctionResponse E() {
+        TreeNode eNode = buildNonterminalNode("E");
+        var t = T();
+        if (t.isResult()) {
+            eNode.addChild(t.getNode());
+            var c = C();
+            if (c.isResult()) {
+                eNode.addChild(c.getNode());
+                return buildTerminalFunctionResponse(eNode);
             }
             printError(15, "C", "Others ");
-            return false;
+            return buildTerminalFunctionResponse();
         }
         printError(16, "T", "Others ");
-        return false;
+        return buildTerminalFunctionResponse();
     }
 
-    private boolean C() {
-        TreeNode cNode = new TreeNode("C");
-        root.addChild(cNode);
-        if (EPrime()) {
-            cNode.addChild(new TreeNode("E'"));
-            return true;
+    private TerminalFunctionResponse C() {
+        TreeNode cNode = buildNonterminalNode("C");
+        var ePrime = EPrime();
+        if (ePrime.isResult()) {
+            cNode.addChild(ePrime.getNode());
+            return buildTerminalFunctionResponse(cNode);
         }
-        cNode.addChild(new TreeNode("£"));
-        return true;
+        cNode.addChild(buildEpsilonNode());
+        return buildTerminalFunctionResponse(cNode);
     }
 
-    private boolean T() {
-        TreeNode tNode = new TreeNode("T");
-        if (F()) {
-            tNode.addChild(new TreeNode("F"));
-            if (D()) {
-                tNode.addChild(new TreeNode("D"));
-                root.addChild(tNode);
-                return true;
+    private TerminalFunctionResponse T() {
+        TreeNode tNode = buildNonterminalNode("T");
+        var f = F();
+        if (f.isResult()) {
+            tNode.addChild(f.getNode());
+            var d = D();
+            if (d.isResult()) {
+                tNode.addChild(d.getNode());
+                return buildTerminalFunctionResponse(tNode);
             }
             printError(17, "D", "Others ");
-            return false;
+            return buildTerminalFunctionResponse();
         }
         printError(18, "F", "Others ");
-        return false;
+        return buildTerminalFunctionResponse();
     }
 
-    private boolean D() {
-        TreeNode dNode = new TreeNode("D");
-        if (TPrime()) {
-            dNode.addChild(new TreeNode("T'"));
-            root.addChild(dNode);
-            return true;
+    private TerminalFunctionResponse D() {
+        TreeNode dNode = buildNonterminalNode("D");
+        var tPrime = TPrime();
+        if (tPrime.isResult()) {
+            dNode.addChild(tPrime.getNode());
+            return buildTerminalFunctionResponse(dNode);
         }
-        dNode.addChild(new TreeNode("£"));
-        return true;
+        dNode.addChild(buildEpsilonNode());
+        return buildTerminalFunctionResponse(dNode);
     }
 
-    private boolean F() {
-        TreeNode fNode = new TreeNode("F");
-
-        var a = next();
+    private TerminalFunctionResponse F() {
+        TreeNode fNode = buildNonterminalNode("F");
+        var a = getCurrentInputSymbol();
         if (a.equals(new Terminal("var", "var"))) {
             currentIndex++;
-            fNode.addChild(new TreeNode("var"));
-            root.addChild(fNode);
-            return true;
+            fNode.addChild(buildTerminalNode(a));
+            return buildTerminalFunctionResponse(fNode);
         }
 
         if (a.equals(new Terminal("const", "const"))) {
             currentIndex++;
-            fNode.addChild(new TreeNode("const"));
-            root.addChild(fNode);
-            return true;
+            fNode.addChild(buildTerminalNode(a));
+            return buildTerminalFunctionResponse(fNode);
         }
 
         if (a.equals(new Terminal("(", "lParen"))) {
-            fNode.addChild(new TreeNode("("));
+            fNode.addChild(buildTerminalNode(a));
             currentIndex++;
-            if (E()) {
-                fNode.addChild(new TreeNode("E"));
-                a = next();
+            var e = E();
+            if (e.isResult()) {
+                fNode.addChild(e.getNode());
+                a = getCurrentInputSymbol();
                 if (a.equals(new Terminal(")", "rParen"))) {
                     currentIndex++;
-                    fNode.addChild(new TreeNode(")"));
-                    root.addChild(fNode);
-                    return true;
+                    fNode.addChild(buildTerminalNode(a));
+                    return buildTerminalFunctionResponse(fNode);
                 }
                 printError(19, ")", a.getName());
-                return false;
+                return buildTerminalFunctionResponse();
             }
             printError(20, "E", "Others ");
-            return false;
+            return buildTerminalFunctionResponse();
         }
 
         printError(21, "var , const or (E)", "Others ");
-        return false;
+        return buildTerminalFunctionResponse();
     }
 
-    private boolean M() {
-        var a = next();
-        TreeNode mNode = new TreeNode("M");
-
+    private TerminalFunctionResponse M() {
+        var a = getCurrentInputSymbol();
+        TreeNode mNode = buildNonterminalNode("M");
         if (a.equals(new Terminal("*", "MUL"))) {
             currentIndex++;
-            mNode.addChild(new TreeNode("*"));
-            root.addChild(mNode);
-            return true;
+            mNode.addChild(buildTerminalNode(a));
+            return buildTerminalFunctionResponse(mNode);
         } else if (a.equals(new Terminal("/", "DIV"))) {
             currentIndex++;
-            mNode.addChild(new TreeNode("/"));
-            root.addChild(mNode);
-            return true;
+            mNode.addChild(buildTerminalNode(a));
+            return buildTerminalFunctionResponse(mNode);
         }
         printError(1, "* or /", a.getName());
-        return false;
+        return buildTerminalFunctionResponse();
     }
 
-    private boolean A() {
-        var a = next();
-        TreeNode aNode = new TreeNode("A");
-        root.addChild(aNode);
+    private TerminalFunctionResponse A() {
+        var a = getCurrentInputSymbol();
+        TreeNode aNode = buildNonterminalNode("A");
         if (a.equals(new Terminal("+", "ADD"))) {
             currentIndex++;
-            aNode.addChild(new TreeNode("+"));
-            return true;
+            aNode.addChild(buildTerminalNode(a));
+            return buildTerminalFunctionResponse(aNode);
         } else if (a.equals(new Terminal("-", "SUB"))) {
             currentIndex++;
-            aNode.addChild(new TreeNode("-"));
-            return true;
+            aNode.addChild(buildTerminalNode(a));
+            return buildTerminalFunctionResponse(aNode);
         }
         printError(2, "+ or -", a.getName());
-        return false;
+        return buildTerminalFunctionResponse();
     }
 
-    private boolean R() {
-        var a = next();
-        TreeNode rNode = new TreeNode("R");
+    private TerminalFunctionResponse R() {
+        var a = getCurrentInputSymbol();
+        TreeNode rNode = buildNonterminalNode("R");
 
         if (a.equals(new Terminal("<", "L"))) {
             currentIndex++;
-            rNode.addChild(new TreeNode("<"));
-            root.addChild(rNode);
-            return true;
+            rNode.addChild(buildTerminalNode(a));
+            return buildTerminalFunctionResponse(rNode);
         } else if (a.equals(new Terminal("<=", "LE"))) {
             currentIndex++;
-            rNode.addChild(new TreeNode("<="));
-            root.addChild(rNode);
-            return true;
+            rNode.addChild(buildTerminalNode(a));
+            return buildTerminalFunctionResponse(rNode);
         } else if (a.equals(new Terminal("=", "E"))) {
             currentIndex++;
-            rNode.addChild(new TreeNode("="));
-            root.addChild(rNode);
-            return true;
+            rNode.addChild(buildTerminalNode(a));
+            return buildTerminalFunctionResponse(rNode);
         } else if (a.equals(new Terminal("<>", "NE"))) {
             currentIndex++;
-            rNode.addChild(new TreeNode("<>"));
-            root.addChild(rNode);
-            return true;
+            rNode.addChild(buildTerminalNode(a));
+            return buildTerminalFunctionResponse(rNode);
         } else if (a.equals(new Terminal(">", "G"))) {
             currentIndex++;
-            rNode.addChild(new TreeNode(">"));
-            root.addChild(rNode);
-            return true;
+            rNode.addChild(buildTerminalNode(a));
+            return buildTerminalFunctionResponse(rNode);
         } else if (a.equals(new Terminal(">=", "GE"))) {
             currentIndex++;
-            rNode.addChild(new TreeNode(">="));
-            root.addChild(rNode);
-            return true;
+            rNode.addChild(buildTerminalNode(a));
+            return buildTerminalFunctionResponse(rNode);
         }
         printError(22, "<, >, <=, >=, =,<>", a.getName());
-        return false;
+        return buildTerminalFunctionResponse();
     }
 
     private void printError(int errorNumber, String expected, String found) {
@@ -383,7 +381,9 @@ public class Parser {
     public boolean parseS() {
         currentIndex = 0;
         erFlag = 0;
-        if (S()) {
+        TerminalFunctionResponse response = S();
+        root = response.getNode();
+        if (response.isResult()) {
             return true;
         }
         return false;
