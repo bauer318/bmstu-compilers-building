@@ -112,7 +112,7 @@ public class Main {
 
         List<GrammarSymbol> inputWithError = TerminalFileReader.buildInputChain("example_with_error");
 
-        Parser parser = new Parser(grammar, inputExample01);
+        Parser parser = new Parser(grammar, inputExample02);
         var isParsed = parser.parse();
         if (isParsed) {
             System.out.println(parser.getRoot());
