@@ -101,7 +101,13 @@ public class Parser {
                 var x = X();
                 if (x.isResult()) {
                     oNode.addChild(x.getNode());
-                    return buildTerminalFunctionResponse(oNode);
+                    a = getCurrentInputSymbol();
+                    if (a.equals(buildTerminalSemicolon())) {
+                        oNode.addChild(buildTerminalNode(a));
+                        return buildTerminalFunctionResponse(oNode);
+                    } else {
+                        return buildTerminalFunctionResponse();
+                    }
                 } else {
                     incrementFlag();
                     addErrorTrace(erFlag, "X", a.getName());
@@ -409,7 +415,7 @@ public class Parser {
         } else {
             if (erFlag > 0) {
                 System.out.println("INTERNAL ERROR");
-                System.out.println("Not expected \'"+getCurrentInputSymbol().getName()+"\' at "+currentIndex+" position ");
+                System.out.println("Not expected \'" + getCurrentInputSymbol().getName() + "\' at " + currentIndex + " position ");
             } else {
                 System.out.println("Position " + currentIndex);
                 System.out.println("Error: Incorrect  first symbol of S!");
