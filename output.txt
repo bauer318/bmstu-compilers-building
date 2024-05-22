@@ -1,11 +1,11 @@
 13
 S L O X E T F R A M L' E' T' 
 18
-begin end := var const ( ) < <= = <> > >= + - * / ; 
+begin end ; := var const ( ) < <= = <> > >= + - * / 
 13
 S -> begin end L 
-L -> O 
-L -> O L' 
+L -> O ; 
+L -> O ; L' 
 O -> := var X 
 X -> E R E 
 X -> E 
@@ -26,8 +26,8 @@ A -> +
 A -> - 
 M -> * 
 M -> / 
-L' -> ; O 
-L' -> ; O L' 
+L' -> 
+L' -> L' 
 E' -> A T 
 E' -> A T E' 
 T' -> M F 

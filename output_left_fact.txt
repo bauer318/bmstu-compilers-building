@@ -1,10 +1,10 @@
 19
 S L O X E T F R A M L' E' T' B X' C D R' G 
 16
-begin end := var const ( ) < = > + - * / ; £ 
+begin end ; := var const ( ) < = > + - * / £ 
 19
 S -> begin end L 
-L -> O B 
+L -> O ; B 
 O -> := var X 
 X -> E X' 
 E -> T C 
@@ -19,7 +19,8 @@ A -> +
 A -> - 
 M -> * 
 M -> / 
-L' -> ; O B 
+L' -> 
+L' -> L' 
 E' -> A T C 
 T' -> M F D 
 B -> £ 

@@ -10,6 +10,10 @@
       "spell": "end"
     },
     {
+      "name": "SEMICOLON",
+      "spell": ";"
+    },
+    {
       "name": "IS",
       "spell": ":="
     },
@@ -56,10 +60,6 @@
     {
       "name": "DIV",
       "spell": "/"
-    },
-    {
-      "name": "SEMICOLON",
-      "spell": ";"
     },
     {
       "name": "IDENT",
@@ -156,6 +156,10 @@
           {
             "type": "NONTERM",
             "name": "O"
+          },
+          {
+            "type": "NONTERM",
+            "name": ";"
           },
           {
             "type": "NONTERM",
@@ -387,18 +391,18 @@
         "name": "L'"
       },
       "rhs": {
+        "symbol": []
+      }
+    },
+    {
+      "lhs": {
+        "name": "L'"
+      },
+      "rhs": {
         "symbol": [
           {
             "type": "NONTERM",
-            "name": ";"
-          },
-          {
-            "type": "NONTERM",
-            "name": "O"
-          },
-          {
-            "type": "NONTERM",
-            "name": "B"
+            "name": "L'"
           }
         ]
       }
