@@ -391,18 +391,18 @@
         "name": "L'"
       },
       "rhs": {
-        "symbol": []
-      }
-    },
-    {
-      "lhs": {
-        "name": "L'"
-      },
-      "rhs": {
         "symbol": [
           {
             "type": "NONTERM",
-            "name": "L'"
+            "name": "O"
+          },
+          {
+            "type": "NONTERM",
+            "name": ";"
+          },
+          {
+            "type": "NONTERM",
+            "name": "B"
           }
         ]
       }

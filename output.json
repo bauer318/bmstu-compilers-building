@@ -472,7 +472,16 @@
         "name": "L'"
       },
       "rhs": {
-        "symbol": []
+        "symbol": [
+          {
+            "type": "NONTERM",
+            "name": "O"
+          },
+          {
+            "type": "NONTERM",
+            "name": ";"
+          }
+        ]
       }
     },
     {
@@ -481,6 +490,14 @@
       },
       "rhs": {
         "symbol": [
+          {
+            "type": "NONTERM",
+            "name": "O"
+          },
+          {
+            "type": "NONTERM",
+            "name": ";"
+          },
           {
             "type": "NONTERM",
             "name": "L'"
