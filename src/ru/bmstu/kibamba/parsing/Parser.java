@@ -58,22 +58,26 @@ public class Parser {
 
     private TerminalFunctionResponse L() {
         TreeNode lNode = buildNonterminalNode("L");
-        var a = getCurrentInputSymbol();
         var o = O();
         if (o.isResult()) {
             lNode.addChild(o.getNode());
-            var b = B();
-            if (b.isResult()) {
-                lNode.addChild(b.getNode());
-                return buildTerminalFunctionResponse(lNode);
-            } else {
-                incrementFlag();
-                addErrorTrace(erFlag, " B after O ", a.getName());
-                return buildTerminalFunctionResponse();
+            var a = getCurrentInputSymbol();
+            if (a.equals(buildTerminalSemicolon())) {
+                lNode.addChild(buildTerminalNode(a));
+                currentIndex++;
+                var b = B();
+                if (b.isResult()) {
+                    lNode.addChild(b.getNode());
+                    return buildTerminalFunctionResponse(lNode);
+                } else {
+                    incrementFlag();
+                    addErrorTrace(erFlag, " B after O ", a.getName());
+                    return buildTerminalFunctionResponse();
+                }
             }
         }
         incrementFlag();
-        addErrorTrace(erFlag, "O", a.getName());
+        addErrorTrace(erFlag, "O", "other");
         return buildTerminalFunctionResponse();
     }
 
@@ -101,13 +105,7 @@ public class Parser {
                 var x = X();
                 if (x.isResult()) {
                     oNode.addChild(x.getNode());
-                    a = getCurrentInputSymbol();
-                    if (a.equals(buildTerminalSemicolon())) {
-                        oNode.addChild(buildTerminalNode(a));
-                        return buildTerminalFunctionResponse(oNode);
-                    } else {
-                        return buildTerminalFunctionResponse();
-                    }
+                    return buildTerminalFunctionResponse(oNode);
                 } else {
                     incrementFlag();
                     addErrorTrace(erFlag, "X", a.getName());
@@ -126,30 +124,27 @@ public class Parser {
 
     private TerminalFunctionResponse LPrime() {
         TreeNode lPrimeNode = buildNonterminalNode("L'");
-        var a = getCurrentInputSymbol();
-        if (a.equals(buildTerminalSemicolon())) {
-            lPrimeNode.addChild(buildTerminalNode(a));
-            currentIndex++;
-            var o = O();
-            if (o.isResult()) {
-                lPrimeNode.addChild(o.getNode());
+        var o = O();
+        if (o.isResult()) {
+            lPrimeNode.addChild(o.getNode());
+            var a = getCurrentInputSymbol();
+            if (a.equals(buildTerminalSemicolon())) {
+                lPrimeNode.addChild(buildTerminalNode(a));
+                currentIndex++;
                 var b = B();
                 if (b.isResult()) {
                     lPrimeNode.addChild(b.getNode());
                     return buildTerminalFunctionResponse(lPrimeNode);
-                } else {
-                    incrementFlag();
-                    addErrorTrace(erFlag, "B", a.getName());
-                    return buildTerminalFunctionResponse();
                 }
-            } else {
                 incrementFlag();
-                addErrorTrace(erFlag, "O", a.getName());
-                return buildTerminalFunctionResponse();
+                addErrorTrace(erFlag, "B()", "Others");
             }
+            incrementFlag();
+            addErrorTrace(erFlag, ";", a.getName());
+            return buildTerminalFunctionResponse();
         }
         incrementFlag();
-        addErrorTrace(erFlag, ";", a.getName());
+        addErrorTrace(erFlag, "O", "Others");
         return buildTerminalFunctionResponse();
     }
 
