@@ -65,13 +65,13 @@ public class Parser {
             if (a.equals(buildTerminalSemicolon())) {
                 lNode.addChild(buildTerminalNode(a));
                 currentIndex++;
-                var b = B();
-                if (b.isResult()) {
-                    lNode.addChild(b.getNode());
+                var lPrime = LPrime();
+                if (lPrime.isResult()) {
+                    lNode.addChild(lPrime.getNode());
                     return buildTerminalFunctionResponse(lNode);
                 } else {
                     incrementFlag();
-                    addErrorTrace(erFlag, " B after O ", a.getName());
+                    addErrorTrace(erFlag, " L' ", a.getName());
                     return buildTerminalFunctionResponse();
                 }
             }
@@ -79,17 +79,6 @@ public class Parser {
         incrementFlag();
         addErrorTrace(erFlag, "O", "other");
         return buildTerminalFunctionResponse();
-    }
-
-    private TerminalFunctionResponse B() {
-        TreeNode bNode = buildNonterminalNode("B");
-        var lPrime = LPrime();
-        if (lPrime.isResult()) {
-            bNode.addChild(lPrime.getNode());
-            return buildTerminalFunctionResponse(bNode);
-        }
-        bNode.addChild(buildEpsilonNode());
-        return buildTerminalFunctionResponse(bNode);
     }
 
     private TerminalFunctionResponse O() {
@@ -131,21 +120,18 @@ public class Parser {
             if (a.equals(buildTerminalSemicolon())) {
                 lPrimeNode.addChild(buildTerminalNode(a));
                 currentIndex++;
-                var b = B();
-                if (b.isResult()) {
-                    lPrimeNode.addChild(b.getNode());
+                var lPrime = LPrime();
+                if (lPrime.isResult()) {
+                    lPrimeNode.addChild(lPrime.getNode());
                     return buildTerminalFunctionResponse(lPrimeNode);
                 }
-                incrementFlag();
-                addErrorTrace(erFlag, "B()", "Others");
             }
             incrementFlag();
             addErrorTrace(erFlag, ";", a.getName());
             return buildTerminalFunctionResponse();
         }
-        incrementFlag();
-        addErrorTrace(erFlag, "O", "Others");
-        return buildTerminalFunctionResponse();
+        lPrimeNode.addChild(buildEpsilonNode());
+        return buildTerminalFunctionResponse(lPrimeNode);
     }
 
     private TerminalFunctionResponse EPrime() {
