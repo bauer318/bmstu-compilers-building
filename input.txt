@@ -5,7 +5,7 @@ var const ( ) < <= = <> > >= + - * / begin end ; :=
 19
 S -> begin L end
 L -> O ;
-L -> L O ;
+L -> L ; O ;
 O -> var := X
 X -> ERE
 X -> E

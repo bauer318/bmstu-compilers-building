@@ -475,6 +475,10 @@
         "symbol": [
           {
             "type": "NONTERM",
+            "name": ";"
+          },
+          {
+            "type": "NONTERM",
             "name": "O"
           },
           {
@@ -490,6 +494,10 @@
       },
       "rhs": {
         "symbol": [
+          {
+            "type": "NONTERM",
+            "name": ";"
+          },
           {
             "type": "NONTERM",
             "name": "O"
