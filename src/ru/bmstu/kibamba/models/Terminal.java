@@ -5,8 +5,8 @@ import java.util.Objects;
 public class Terminal extends GrammarSymbol {
     private String spell;
 
-    public Terminal(String name, String spell) {
-        super(name);
+    public Terminal(String name, String attribute, String spell) {
+        super(name, attribute);
         this.spell = spell;
     }
 

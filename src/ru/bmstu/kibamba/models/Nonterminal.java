@@ -4,13 +4,14 @@ import java.util.Objects;
 
 public class Nonterminal extends GrammarSymbol implements Cloneable {
     private boolean isStartSymbol;
-    public Nonterminal(String name, boolean isStartSymbol) {
-        super(name);
+
+    public Nonterminal(String name, String attribute, boolean isStartSymbol) {
+        super(name, attribute);
         this.isStartSymbol = isStartSymbol;
     }
 
-    public Nonterminal(String name) {
-        super(name);
+    public Nonterminal(String name, String attribute) {
+        super(name, attribute);
         this.isStartSymbol = false;
     }
 

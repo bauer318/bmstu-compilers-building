@@ -29,80 +29,99 @@ public class Parser {
         return input.get(currentIndex);
     }
 
-    private TerminalFunctionResponse S() {
+    /**
+     * S -> begin L end
+     *
+     * @return postfix annotation of S -> L begin end
+     */
+    private TerminalFunctionResponse SPostfix() {
         TreeNode sNode = new TreeNode(grammar.getStart());
-        var a = getCurrentInputSymbol();
-        if (a.equals(buildTerminalBegin())) {
-            currentIndex++;
-            sNode.addChild(buildTerminalNode(a));
-            var l = L();
-            if (l.isResult()) {
-                sNode.addChild(l.getNode());
+        var lPostfix = LPostfix();
+        if (lPostfix.isResult()) {
+            sNode.addChild(lPostfix.getNode());
+            var a = getCurrentInputSymbol();
+            if (a.equals(buildTerminalBegin())) {
+                currentIndex++;
+                sNode.addChild(buildTerminalNode(a));
                 a = getCurrentInputSymbol();
                 if (a.equals(buildTerminalEnd())) {
                     sNode.addChild(buildTerminalNode(a));
                     return buildTerminalFunctionResponse(sNode);
                 } else {
-                    erFlag++;
-                    addErrorTrace(erFlag, "end", a.getName());
                     incrementFlag();
+                    addErrorTrace(erFlag, "end", a.getName());
                     return buildTerminalFunctionResponse();
                 }
-            } else {
-                addErrorTrace(erFlag, "L", a.getName());
             }
+            incrementFlag();
+            addErrorTrace(erFlag, "begin", a.getName());
+            return buildTerminalFunctionResponse();
         }
         incrementFlag();
+        addErrorTrace(erFlag, "List of operators", "others");
         return buildTerminalFunctionResponse();
     }
 
-    private TerminalFunctionResponse L() {
+    /**
+     * L -> O;L'
+     *
+     * @return postfix annotation of L -> O L' ;
+     */
+    private TerminalFunctionResponse LPostfix() {
         TreeNode lNode = buildNonterminalNode("L");
-        var o = O();
-        if (o.isResult()) {
-            lNode.addChild(o.getNode());
-            var a = getCurrentInputSymbol();
-            if (a.equals(buildTerminalSemicolon())) {
-                lNode.addChild(buildTerminalNode(a));
-                currentIndex++;
-                var lPrime = LPrime();
-                if (lPrime.isResult()) {
-                    lNode.addChild(lPrime.getNode());
+        var oPostfix = OPostfix();
+        if (oPostfix.isResult()) {
+            lNode.addChild(oPostfix.getNode());
+            var lPrimePostfix = LPrimePostfix();
+            if (lPrimePostfix.isResult()) {
+                lNode.addChild(lPrimePostfix.getNode());
+                var a = getCurrentInputSymbol();
+                if (a.equals(buildTerminalSemicolon())) {
+                    lNode.addChild(buildTerminalNode(a));
+                    currentIndex++;
                     return buildTerminalFunctionResponse(lNode);
                 } else {
                     incrementFlag();
-                    addErrorTrace(erFlag, " L' ", a.getName());
+                    addErrorTrace(erFlag, ";", a.getName());
                     return buildTerminalFunctionResponse();
                 }
             }
+            incrementFlag();
+            addErrorTrace(erFlag, "L'", "Others");
+            return buildTerminalFunctionResponse();
         }
         incrementFlag();
         addErrorTrace(erFlag, "O", "other");
         return buildTerminalFunctionResponse();
     }
 
-    private TerminalFunctionResponse O() {
+    /**
+     * O -> id := X
+     *
+     * @return postfix annotation of O -> id X :=
+     */
+    private TerminalFunctionResponse OPostfix() {
         TreeNode oNode = buildNonterminalNode("O");
         var a = getCurrentInputSymbol();
         if (a.equals(buildTerminalId())) {
             oNode.addChild(buildTerminalNode(a));
             currentIndex++;
-            a = getCurrentInputSymbol();
-            if (a.equals(buildTerminalIs())) {
-                oNode.addChild(buildTerminalNode(a));
-                currentIndex++;
-                var x = X();
-                if (x.isResult()) {
-                    oNode.addChild(x.getNode());
+            var xPostfix = XPostfix();
+            if (xPostfix.isResult()) {
+                oNode.addChild(xPostfix.getNode());
+                a = getCurrentInputSymbol();
+                if (a.equals(buildTerminalIs())) {
+                    oNode.addChild(buildTerminalNode(a));
+                    currentIndex++;
                     return buildTerminalFunctionResponse(oNode);
                 } else {
                     incrementFlag();
-                    addErrorTrace(erFlag, "X", a.getName());
+                    addErrorTrace(erFlag, ":=", a.getName());
                     return buildTerminalFunctionResponse();
                 }
             } else {
                 incrementFlag();
-                addErrorTrace(erFlag, ":=", a.getName());
+                addErrorTrace(erFlag, "X", a.getName());
                 return buildTerminalFunctionResponse();
             }
         }
@@ -111,48 +130,74 @@ public class Parser {
         return buildTerminalFunctionResponse();
     }
 
-    private TerminalFunctionResponse LPrime() {
+    /**
+     * L' -> O;L' | £
+     *
+     * @return postfix annotation of L' -> O L' ; | £
+     */
+    private TerminalFunctionResponse LPrimePostfix() {
         TreeNode lPrimeNode = buildNonterminalNode("L'");
-        var o = O();
-        if (o.isResult()) {
-            lPrimeNode.addChild(o.getNode());
-            var a = getCurrentInputSymbol();
-            if (a.equals(buildTerminalSemicolon())) {
-                lPrimeNode.addChild(buildTerminalNode(a));
-                currentIndex++;
-                var lPrime = LPrime();
-                if (lPrime.isResult()) {
-                    lPrimeNode.addChild(lPrime.getNode());
+        var oPostfix = OPostfix();
+        if (oPostfix.isResult()) {
+            lPrimeNode.addChild(oPostfix.getNode());
+            currentIndex++;
+            var lPrime = LPrimePostfix();
+            if (lPrime.isResult()) {
+                lPrimeNode.addChild(lPrime.getNode());
+                var a = getCurrentInputSymbol();
+                if (a.equals(buildTerminalSemicolon())) {
+                    lPrimeNode.addChild(buildTerminalNode(a));
                     return buildTerminalFunctionResponse(lPrimeNode);
                 }
+                incrementFlag();
+                addErrorTrace(erFlag, ";", a.getName());
+                return buildTerminalFunctionResponse();
             }
             incrementFlag();
-            addErrorTrace(erFlag, ";", a.getName());
+            addErrorTrace(erFlag, "L'", "Others");
             return buildTerminalFunctionResponse();
         }
         lPrimeNode.addChild(buildEpsilonNode());
         return buildTerminalFunctionResponse(lPrimeNode);
     }
 
-    private TerminalFunctionResponse EPrime() {
+    /**
+     * E' -> A T C
+     *
+     * @return postfix annotation of E' -> T C A
+     */
+    private TerminalFunctionResponse EPrimePostfix() {
         TreeNode ePrimeNode = buildNonterminalNode("E'");
-        var a = A();
-        if (a.isResult()) {
-            ePrimeNode.addChild(a.getNode());
-            return TC(ePrimeNode);
+        var tcPostfix = TCPostfix(ePrimeNode);
+        if (tcPostfix.isResult()) {
+            var aPostfix = APostfix();
+            if (aPostfix.isResult()) {
+                ePrimeNode.addChild(aPostfix.getNode());
+                return buildTerminalFunctionResponse(ePrimeNode);
+            }
+            incrementFlag();
+            addErrorTrace(erFlag, "A", "Others ");
+            return buildTerminalFunctionResponse();
         }
         incrementFlag();
-        addErrorTrace(erFlag, "A", "Others ");
+        addErrorTrace(erFlag, "TC", "Others ");
         return buildTerminalFunctionResponse();
+
     }
 
-    private TerminalFunctionResponse TC(TreeNode node) {
-        var t = T();
-        if (t.isResult()) {
-            node.addChild(t.getNode());
-            var c = C();
-            if (c.isResult()) {
-                node.addChild(c.getNode());
+    /**
+     * TC -> T C
+     *
+     * @param node parent's node
+     * @return postfix annotation of TC -> T C
+     */
+    private TerminalFunctionResponse TCPostfix(TreeNode node) {
+        var tPostfix = TPostfix();
+        if (tPostfix.isResult()) {
+            node.addChild(tPostfix.getNode());
+            var cPostfix = CPostfix();
+            if (cPostfix.isResult()) {
+                node.addChild(cPostfix.getNode());
                 return buildTerminalFunctionResponse(node);
             }
             incrementFlag();
@@ -164,84 +209,125 @@ public class Parser {
         return buildTerminalFunctionResponse();
     }
 
-    private TerminalFunctionResponse TPrime() {
+    /**
+     * T' -> MFD
+     *
+     * @return postfix annotation of T' -> FDM
+     */
+    private TerminalFunctionResponse TPrimePostfix() {
         TreeNode tPrimeNode = buildNonterminalNode("T'");
-        var m = M();
-        if (m.isResult()) {
-            tPrimeNode.addChild(m.getNode());
-            return FD(tPrimeNode);
+        var fdPostfix = FDPostfix(tPrimeNode);
+        if (fdPostfix.isResult()) {
+            var mPostfix = MPostfix();
+            if (mPostfix.isResult()) {
+                tPrimeNode.addChild(mPostfix.getNode());
+                return buildTerminalFunctionResponse(tPrimeNode);
+            }
+            incrementFlag();
+            addErrorTrace(erFlag, "M", "Others ");
+            return buildTerminalFunctionResponse();
         }
         incrementFlag();
-        addErrorTrace(erFlag, "M", "Others ");
+        addErrorTrace(erFlag, "FD", "Others");
         return buildTerminalFunctionResponse();
     }
 
-    private TerminalFunctionResponse X() {
+    /**
+     * X -> EX'
+     *
+     * @return postfix annotation of X -> EX'
+     */
+    private TerminalFunctionResponse XPostfix() {
         TreeNode xNode = buildNonterminalNode("X");
-        var a = getCurrentInputSymbol();
-        var e = E();
-        if (e.isResult()) {
-            xNode.addChild(e.getNode());
-            var xPrime = XPrime();
-            if (xPrime.isResult()) {
-                xNode.addChild(xPrime.getNode());
+        var ePostfix = EPostfix();
+        if (ePostfix.isResult()) {
+            xNode.addChild(ePostfix.getNode());
+            var xPrimePostfix = XPrimePostfix();
+            if (xPrimePostfix.isResult()) {
+                xNode.addChild(xPrimePostfix.getNode());
                 return buildTerminalFunctionResponse(xNode);
             }
             incrementFlag();
-            addErrorTrace(erFlag, "X'", a.getName());
+            addErrorTrace(erFlag, "X'", "Others");
 
         }
         incrementFlag();
-        addErrorTrace(erFlag, "E", a.getName());
+        addErrorTrace(erFlag, "E", "Others");
         return buildTerminalFunctionResponse();
     }
 
-    private TerminalFunctionResponse XPrime() {
+    /**
+     * X' -> RE | £
+     *
+     * @return postfix of X' -> ER | £
+     */
+    private TerminalFunctionResponse XPrimePostfix() {
         TreeNode xPrimeNode = buildNonterminalNode("X'");
-        var r = R();
-        if (r.isResult()) {
-            xPrimeNode.addChild(r.getNode());
-            var e = E();
-            if (e.isResult()) {
-                xPrimeNode.addChild(e.getNode());
+        var ePostfix = EPostfix();
+        if (ePostfix.isResult()) {
+            xPrimeNode.addChild(ePostfix.getNode());
+            var rPostfix = R();
+            if (rPostfix.isResult()) {
+                xPrimeNode.addChild(rPostfix.getNode());
                 return buildTerminalFunctionResponse(xPrimeNode);
             }
             incrementFlag();
-            addErrorTrace(erFlag, "E", "Others ");
+            addErrorTrace(erFlag, "R", "Others");
             return buildTerminalFunctionResponse();
         }
         xPrimeNode.addChild(buildEpsilonNode());
         return buildTerminalFunctionResponse(xPrimeNode);
     }
 
-    private TerminalFunctionResponse E() {
+    /**
+     * E -> TC
+     *
+     * @return postfix annotation of E -> TC
+     */
+    private TerminalFunctionResponse EPostfix() {
         TreeNode eNode = buildNonterminalNode("E");
-        return TC(eNode);
+        return TCPostfix(eNode);
     }
 
-    private TerminalFunctionResponse C() {
+    /**
+     * C -> E' | £
+     *
+     * @return postfix annotation of C -> E' | £
+     */
+    private TerminalFunctionResponse CPostfix() {
         TreeNode cNode = buildNonterminalNode("C");
-        var ePrime = EPrime();
-        if (ePrime.isResult()) {
-            cNode.addChild(ePrime.getNode());
+        var ePrimePostfix = EPrimePostfix();
+        if (ePrimePostfix.isResult()) {
+            cNode.addChild(ePrimePostfix.getNode());
             return buildTerminalFunctionResponse(cNode);
         }
         cNode.addChild(buildEpsilonNode());
         return buildTerminalFunctionResponse(cNode);
     }
 
-    private TerminalFunctionResponse T() {
+    /**
+     * T -> FD
+     *
+     * @return postfix annotation of T -> FD
+     */
+    private TerminalFunctionResponse TPostfix() {
         TreeNode tNode = buildNonterminalNode("T");
-        return FD(tNode);
+        return FDPostfix(tNode);
     }
 
-    private TerminalFunctionResponse FD(TreeNode node) {
-        var f = F();
-        if (f.isResult()) {
-            node.addChild(f.getNode());
-            var d = D();
-            if (d.isResult()) {
-                node.addChild(d.getNode());
+    /**
+     * FD -> F D
+     *
+     * @param node parent's node
+     * @return postfix annotation of FD -> F D
+     */
+    private TerminalFunctionResponse FDPostfix(TreeNode node) {
+        var fPostfix = FPostfix();
+        if (fPostfix.isResult()) {
+            node.addChild(fPostfix.getNode());
+            var dPostfix = DPostfix();
+            if (dPostfix.isResult()) {
+                node.addChild(dPostfix.getNode());
                 return buildTerminalFunctionResponse(node);
             }
             incrementFlag();
@@ -253,18 +339,28 @@ public class Parser {
         return buildTerminalFunctionResponse();
     }
 
-    private TerminalFunctionResponse D() {
+    /**
+     * D -> T' | £
+     *
+     * @return postfix annotation of D -> T' | £
+     */
+    private TerminalFunctionResponse DPostfix() {
         TreeNode dNode = buildNonterminalNode("D");
-        var tPrime = TPrime();
-        if (tPrime.isResult()) {
-            dNode.addChild(tPrime.getNode());
+        var tPrimePostfix = TPrimePostfix();
+        if (tPrimePostfix.isResult()) {
+            dNode.addChild(tPrimePostfix.getNode());
             return buildTerminalFunctionResponse(dNode);
         }
         dNode.addChild(buildEpsilonNode());
         return buildTerminalFunctionResponse(dNode);
     }
 
-    private TerminalFunctionResponse F() {
+    /**
+     * F -> id | const | (E)
+     *
+     * @return postfix annotation of F -> id | const | E
+     */
+    private TerminalFunctionResponse FPostfix() {
         TreeNode fNode = buildNonterminalNode("F");
         var a = getCurrentInputSymbol();
         if (a.equals(buildTerminalId())) {
@@ -280,31 +376,32 @@ public class Parser {
         }
 
         if (a.equals(buildTerminalLParen())) {
-            fNode.addChild(buildTerminalNode(a));
             currentIndex++;
-            var e = E();
-            if (e.isResult()) {
-                fNode.addChild(e.getNode());
+            fNode.addChild(buildTerminalNode(a));
+            var ePostfix = parseE();
+            if (ePostfix.isResult()) {
+                fNode.addChild(ePostfix.getNode());
                 a = getCurrentInputSymbol();
                 if (a.equals(buildTerminalRParen())) {
-                    currentIndex++;
                     fNode.addChild(buildTerminalNode(a));
+                    currentIndex++;
                     return buildTerminalFunctionResponse(fNode);
                 }
-                incrementFlag();
-                addErrorTrace(erFlag, ")", a.getName());
                 return buildTerminalFunctionResponse();
             }
-            incrementFlag();
-            addErrorTrace(erFlag, "E", "Others ");
             return buildTerminalFunctionResponse();
         }
         incrementFlag();
-        addErrorTrace(erFlag, "id , const or (E)", "Others ");
+        addErrorTrace(erFlag, "id , const or E", "Others ");
         return buildTerminalFunctionResponse();
     }
 
-    private TerminalFunctionResponse M() {
+    /**
+     * M -> * | /
+     *
+     * @return postfix annotation of M -> * | /
+     */
+    private TerminalFunctionResponse MPostfix() {
         var a = getCurrentInputSymbol();
         TreeNode mNode = buildNonterminalNode("M");
         if (a.equals(buildTerminalMul())) {
@@ -321,7 +418,12 @@ public class Parser {
         return buildTerminalFunctionResponse();
     }
 
-    private TerminalFunctionResponse A() {
+    /**
+     * A -> + | -
+     *
+     * @return postfix annotation of A -> + | -
+     */
+    private TerminalFunctionResponse APostfix() {
         var a = getCurrentInputSymbol();
         TreeNode aNode = buildNonterminalNode("A");
         if (a.equals(buildTerminalAdd())) {
@@ -338,6 +440,11 @@ public class Parser {
         return buildTerminalFunctionResponse();
     }
 
+    /**
+     * R -> < | <= | = | <> | > | >=
+     *
+     * @return postfix annotation of R -> < | <= | = | <> | > | >=
+     */
     private TerminalFunctionResponse R() {
         var a = getCurrentInputSymbol();
         TreeNode rNode = buildNonterminalNode("R");
@@ -382,6 +489,173 @@ public class Parser {
         }
     }
 
+    private TerminalFunctionResponse parseS() {
+        var sNode = buildNonterminalNode("S");
+        var a = getCurrentInputSymbol();
+        if (isBegin(a)) {
+            currentIndex++;
+            sNode.addChild(buildTerminalNode(a));
+            var l = parseL();
+            if (l.isResult()) {
+                sNode.addChild(l.getNode());
+                a = getCurrentInputSymbol();
+                if (isEnd(a)) {
+                    sNode.addChild(buildTerminalNode(a));
+                    return buildTerminalFunctionResponse(sNode);
+                }
+                return buildTerminalFunctionResponse();
+            }
+            return buildTerminalFunctionResponse();
+        }
+        return buildTerminalFunctionResponse();
+    }
+
+    private TerminalFunctionResponse parseL() {
+        var lNode = buildNonterminalNode("L");
+        var o = parseO();
+        if (o.isResult()) {
+            lNode.addChild(o.getNode());
+            var a = getCurrentInputSymbol();
+            if (a.equals(buildTerminalSemicolon())) {
+                lNode.addChild(buildTerminalNode(a));
+                while (a.equals(buildTerminalSemicolon())) {
+                    currentIndex++;
+                    var oSc = parseO();
+                    if (oSc.isResult()) {
+                        lNode.addChild(oSc.getNode());
+                        lNode.addChild(buildTerminalNode(a));
+                    }
+                    a = getCurrentInputSymbol();
+                }
+                return buildTerminalFunctionResponse(lNode);
+            }
+            return buildTerminalFunctionResponse();
+        }
+        return buildTerminalFunctionResponse();
+    }
+
+    private TerminalFunctionResponse parseO() {
+        var oNode = buildNonterminalNode("O");
+        var a = getCurrentInputSymbol();
+        if (isId(a)) {
+            oNode.addChild(buildTerminalNode(a));
+            currentIndex++;
+            while (getCurrentInputSymbol().equals(buildTerminalIs())) {
+                a = getCurrentInputSymbol();
+                currentIndex++;
+                var x = parseX();
+                if (x.isResult()) {
+                    oNode.addChild(x.getNode());
+                    oNode.addChild(buildTerminalNode(a));
+                } else {
+                    return buildTerminalFunctionResponse();
+                }
+            }
+            return buildTerminalFunctionResponse(oNode);
+        }
+        return buildTerminalFunctionResponse();
+    }
+
+    private TerminalFunctionResponse parseX() {
+        var xNode = buildNonterminalNode("X");
+        var e = parseE();
+        if (e.isResult()) {
+            xNode.addChild(e.getNode());
+            var r = parseR();
+            while (r.isResult()) {
+                var eSc = parseE();
+                if (eSc.isResult()) {
+                    xNode.addChild(eSc.getNode());
+                    xNode.addChild(r.getNode());
+                }
+                r = parseR();
+            }
+            return buildTerminalFunctionResponse(xNode);
+        }
+        return buildTerminalFunctionResponse();
+    }
+
+    private TerminalFunctionResponse parseE() {
+        var eNode = buildNonterminalNode("E");
+        var t = parseT();
+        if (t.isResult()) {
+            eNode.addChild(t.getNode());
+            var a = parseA();
+            while (a.isResult()) {
+                var tSc = parseT();
+                if (tSc.isResult()) {
+                    eNode.addChild(tSc.getNode());
+                    eNode.addChild(a.getNode());
+                }
+                a = parseA();
+            }
+            return buildTerminalFunctionResponse(eNode);
+        }
+        return buildTerminalFunctionResponse();
+    }
+
+    private TerminalFunctionResponse parseA() {
+        return APostfix();
+    }
+
+    private TerminalFunctionResponse parseR() {
+        return R();
+    }
+
+    private TerminalFunctionResponse parseM() {
+        return MPostfix();
+    }
+
+    private TerminalFunctionResponse parseT() {
+        var tNode = buildNonterminalNode("T");
+        var f = parseF();
+        if (f.isResult()) {
+            tNode.addChild(f.getNode());
+            var m = parseM();
+            while (m.isResult()) {
+                var fSc = parseF();
+                if (fSc.isResult()) {
+                    tNode.addChild(fSc.getNode());
+                    tNode.addChild(m.getNode());
+                }
+                m = parseM();
+            }
+            return buildTerminalFunctionResponse(tNode);
+        }
+        return buildTerminalFunctionResponse();
+    }
+
+    private TerminalFunctionResponse parseF() {
+        var fNode = buildNonterminalNode("F");
+        var a = getCurrentInputSymbol();
+        if (isId(a)) {
+            fNode.addChild(buildTerminalNode(a));
+            currentIndex++;
+            return buildTerminalFunctionResponse(fNode);
+        }
+        if (isConstant(a)) {
+            fNode.addChild(buildTerminalNode(a));
+            currentIndex++;
+            return buildTerminalFunctionResponse(fNode);
+        }
+
+        if (a.equals(buildTerminalLParen())) {
+            currentIndex++;
+            var e = parseE();
+            if (e.isResult()) {
+                fNode.addChild(e.getNode());
+                a = getCurrentInputSymbol();
+                if (a.equals(buildTerminalRParen())) {
+                    currentIndex++;
+                    return buildTerminalFunctionResponse(fNode);
+                }
+                return buildTerminalFunctionResponse();
+            }
+            return buildTerminalFunctionResponse();
+        }
+        return buildTerminalFunctionResponse();
+    }
+
     private void incrementFlag() {
         erFlag++;
     }
@@ -389,9 +663,10 @@ public class Parser {
     public boolean parse() {
         currentIndex = 0;
         erFlag = 0;
-        TerminalFunctionResponse response = S();
+        TerminalFunctionResponse response = parseS();
         root = response.getNode();
         if (response.isResult()) {
+            //sb(root);
             return true;
         } else {
             if (erFlag > 0) {

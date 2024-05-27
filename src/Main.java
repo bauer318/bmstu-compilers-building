@@ -13,23 +13,25 @@ public class Main {
         Set<Production> productions = new LinkedHashSet<>();
         Set<Terminal> terminals = new LinkedHashSet<>();
 
-        var nonTerminalS = new Nonterminal("S", true);
-        var nonTerminalL = new Nonterminal("L");
-        var nonTerminalB = new Nonterminal("B");
-        var nonTerminalO = new Nonterminal("O");
-        var nonTerminalX = new Nonterminal("X");
-        var nonTerminalXPrime = new Nonterminal("X'");
-        var nonTerminalE = new Nonterminal("E");
-        var nonTerminalC = new Nonterminal("C");
-        var nonTerminalT = new Nonterminal("T");
-        var nonTerminalD = new Nonterminal("D");
-        var nonTerminalF = new Nonterminal("F");
-        var nonTerminalR = new Nonterminal("R");
-        var nonTerminalA = new Nonterminal("A");
-        var nonTerminalM = new Nonterminal("M");
-        var nonTerminalLPrime = new Nonterminal("L'");
-        var nonTerminalEPrime = new Nonterminal("E'");
-        var nonTerminalTPrime = new Nonterminal("T'");
+        var terminalAttribute = "val";
+
+        var nonTerminalS = new Nonterminal("S",terminalAttribute, true);
+        var nonTerminalL = new Nonterminal("L",terminalAttribute);
+        var nonTerminalB = new Nonterminal("B",terminalAttribute);
+        var nonTerminalO = new Nonterminal("O",terminalAttribute);
+        var nonTerminalX = new Nonterminal("X",terminalAttribute);
+        var nonTerminalXPrime = new Nonterminal("X'",terminalAttribute);
+        var nonTerminalE = new Nonterminal("E",terminalAttribute);
+        var nonTerminalC = new Nonterminal("C",terminalAttribute);
+        var nonTerminalT = new Nonterminal("T",terminalAttribute);
+        var nonTerminalD = new Nonterminal("D",terminalAttribute);
+        var nonTerminalF = new Nonterminal("F",terminalAttribute);
+        var nonTerminalR = new Nonterminal("R",terminalAttribute);
+        var nonTerminalA = new Nonterminal("A",terminalAttribute);
+        var nonTerminalM = new Nonterminal("M",terminalAttribute);
+        var nonTerminalLPrime = new Nonterminal("L'",terminalAttribute);
+        var nonTerminalEPrime = new Nonterminal("E'",terminalAttribute);
+        var nonTerminalTPrime = new Nonterminal("T'",terminalAttribute);
 
 
         Collections.addAll(nonterminals, nonTerminalS, nonTerminalL, nonTerminalB,
@@ -56,7 +58,7 @@ public class Main {
         var terminalGreat = buildTerminalGreat();
         var terminalGreatEqual = buildTerminalGreatEqual();
 
-        var epsilon = new GrammarSymbol("£");
+        var epsilon = new GrammarSymbol("£","");
 
         Collections.addAll(terminals, terminalBegin, terminalEnd,
                 terminalVar, terminalIs, terminalSemicolon, terminalConst,
@@ -112,7 +114,7 @@ public class Main {
 
         List<GrammarSymbol> inputWithError = TerminalFileReader.buildInputChain("example_with_error");
 
-        Parser parser = new Parser(grammar, inputWithError);
+        Parser parser = new Parser(grammar, inputExample02);
         var isParsed = parser.parse();
         if (isParsed) {
             System.out.println(parser.getRoot());

@@ -9,9 +9,24 @@ public class TreeNode {
     GrammarSymbol value;
     List<TreeNode> children;
 
+    StringBuilder additionalInfo;
+
     TreeNode(GrammarSymbol value) {
         this.value = value;
         this.children = new ArrayList<>();
+        additionalInfo = new StringBuilder(" = ");
+    }
+
+    public void resetAdditionalInfos(){
+        this.additionalInfo = new StringBuilder("");
+    }
+
+    public StringBuilder getAdditionalInfo() {
+        return additionalInfo;
+    }
+
+    public void setAdditionalInfo(StringBuilder additionalInfo) {
+        this.additionalInfo.append(additionalInfo);
     }
 
     void addChild(TreeNode child) {
@@ -25,9 +40,12 @@ public class TreeNode {
 
     private String toString(String indent, boolean isLast, boolean isRoot) {
         StringBuilder sb = new StringBuilder();
-        sb.append(isRoot ? "" : indent).append(isRoot ? "" : "|--").append(value.getName()).append("\n");
+        StringBuilder sbValue = new StringBuilder(value.getName());
+        sbValue.append(value.getAttribute().isEmpty() ? "" : "." + value.getAttribute());
+        sb.append(isRoot ? "" : indent).append(isRoot ? "" : "|--").append(sbValue).append(additionalInfo).append("\n");
         for (int i = 0; i < children.size(); i++) {
-            sb.append(children.get(i).toString(indent + (isLast ? isRoot ? "" : "   " : "|  "),
+            var child = children.get(i);
+            sb.append(child.toString(indent + (isLast ? isRoot ? "" : "   " : "|  "),
                     i == children.size() - 1, false));
         }
         return sb.toString();

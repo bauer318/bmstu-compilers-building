@@ -5,6 +5,8 @@ import ru.bmstu.kibamba.models.*;
 
 import java.util.*;
 
+import static ru.bmstu.kibamba.parsing.TerminalBuilder.*;
+
 public class ParserUtils {
     public static boolean isEpsilon(GrammarSymbol symbol) {
         return symbol.getName().equals("£");
@@ -29,7 +31,23 @@ public class ParserUtils {
         return false;
     }
 
+    private static StringBuilder addNodeAdditionalInfos(TreeNode node) {
+        if (node.children.isEmpty()) {
+            var vValue = node.value.getValue() == null ?
+                    node.value.getName() : node.value.getValue();
+            return new StringBuilder(vValue + " ");
+        }
+        List<TreeNode> children = node.children;
+        StringBuilder sbResult = new StringBuilder();
+        for (TreeNode child : children) {
+            sbResult.append(addNodeAdditionalInfos(child));
+        }
+        return sbResult;
+    }
+
     public static TerminalFunctionResponse buildTerminalFunctionResponse(TreeNode treeNode) {
+        treeNode.value.setValue(treeNode.value.getName());
+        treeNode.setAdditionalInfo(addNodeAdditionalInfos(treeNode));
         return new TerminalFunctionResponse(treeNode, true);
     }
 
@@ -38,15 +56,40 @@ public class ParserUtils {
     }
 
     public static TreeNode buildNonterminalNode(String nonTerminalName) {
-        return new TreeNode(new Nonterminal(nonTerminalName));
+        return new TreeNode(new Nonterminal(nonTerminalName, "val"));
     }
 
     public static TreeNode buildEpsilonNode() {
-        return new TreeNode(new GrammarSymbol("£"));
+        return new TreeNode(new GrammarSymbol("£", ""));
     }
 
     public static TreeNode buildTerminalNode(GrammarSymbol terminal) {
-        return new TreeNode(terminal);
+        var node = new TreeNode(terminal);
+        if (noNeedAdditionalInfos(terminal)) {
+            node.resetAdditionalInfos();
+        } else {
+            node.setAdditionalInfo(addNodeAdditionalInfos(node));
+        }
+        return node;
+    }
+
+    private static boolean noNeedAdditionalInfos(GrammarSymbol terminal) {
+        return isBegin(terminal) || isEnd(terminal) ||
+                terminal.equals(buildTerminalSemicolon()) ||
+                terminal.equals(buildTerminalIs()) || isOperator(terminal);
+    }
+
+    private static boolean isOperator(GrammarSymbol terminal) {
+        return terminal.equals(buildTerminalAdd()) ||
+                terminal.equals(buildTerminalSub()) ||
+                terminal.equals(buildTerminalMul()) ||
+                terminal.equals(buildTerminalDiv()) ||
+                terminal.equals(buildTerminalLess()) ||
+                terminal.equals(buildTerminalLessEqual()) ||
+                terminal.equals(buildTerminalEqual()) ||
+                terminal.equals(buildTerminalGreat()) ||
+                terminal.equals(buildTerminalGreatEqual()) ||
+                terminal.equals(buildTerminalNotEqual());
     }
 
     public static Set<Production> getNonterminalProductions(GrammarSymbol nonterminal,
@@ -68,11 +111,11 @@ public class ParserUtils {
     }
 
     public static GrammarSymbol buildInputEndMarkerSymbol() {
-        return new GrammarSymbol("$");
+        return new GrammarSymbol("$", "");
     }
 
     public static GrammarSymbol buildEpsilon() {
-        return new GrammarSymbol("£");
+        return new GrammarSymbol("£", "");
     }
 
 }

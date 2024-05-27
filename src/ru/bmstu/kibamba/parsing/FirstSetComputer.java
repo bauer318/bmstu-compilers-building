@@ -44,7 +44,7 @@ public class FirstSetComputer {
         boolean changed;
         do {
             changed = false;
-            GrammarSymbol epsilon = new GrammarSymbol("£");
+            GrammarSymbol epsilon = new GrammarSymbol("£", "");
             for (Nonterminal nonterminal : grammar.getNonterminals()) {
                 Set<GrammarSymbol> firstSet = firstSets.get(nonterminal);
                 int originalSize = firstSet.size();

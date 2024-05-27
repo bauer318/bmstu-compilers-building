@@ -40,10 +40,10 @@ public class TerminalFileReader {
         for (String terminalName : lines) {
             switch (terminalName) {
                 case "begin":
-                    result.add(buildTerminalBegin());
+                    result.add(buildTerminalBegin(terminalName));
                     break;
                 case "end":
-                    result.add(buildTerminalEnd());
+                    result.add(buildTerminalEnd(terminalName));
                     break;
                 case ";":
                     result.add(buildTerminalSemicolon());
@@ -53,7 +53,7 @@ public class TerminalFileReader {
                 case "c":
                 case "d":
                 case "e":
-                    result.add(buildTerminalId());
+                    result.add(buildTerminalId(terminalName));
                     break;
                 case ":=":
                     result.add(buildTerminalIs());
@@ -68,7 +68,7 @@ public class TerminalFileReader {
                 case "7":
                 case "8":
                 case "9":
-                    result.add(buildTerminalConst());
+                    result.add(buildTerminalConst(terminalName));
                     break;
                 case "(":
                     result.add(buildTerminalLParen());

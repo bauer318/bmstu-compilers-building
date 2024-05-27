@@ -4,16 +4,47 @@ import java.util.Objects;
 
 public class GrammarSymbol implements Cloneable {
     private String name;
+    private String attribute;
 
-    public GrammarSymbol(String name){
+    private String value;
+
+    private GrammarSymbol(String name) {
         this.name = name;
     }
 
-    public void setName(String name){
+    public GrammarSymbol(String name, String attribute) {
+        this(name);
+        this.attribute = attribute;
+        this.value = name;
+
+    }
+
+    public GrammarSymbol(String name, String attribute, String value) {
+        this(name, attribute);
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public String getAttribute() {
+        return attribute;
+    }
+
+    public void setAttribute(String attribute) {
+        this.attribute = attribute;
+    }
+
+    public void setName(String name) {
         this.name = name;
     }
 
-    public String getName(){
+    public String getName() {
         return name;
     }
 
@@ -21,13 +52,15 @@ public class GrammarSymbol implements Cloneable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        GrammarSymbol that = (GrammarSymbol) o;
-        return Objects.equals(name, that.name);
+        GrammarSymbol symbol = (GrammarSymbol) o;
+        return Objects.equals(name, symbol.name) &&
+                Objects.equals(attribute, symbol.attribute) &&
+                Objects.equals(value, symbol.value);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name);
+        return Objects.hash(name, attribute);
     }
 
     @Override
