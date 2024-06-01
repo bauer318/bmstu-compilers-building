@@ -6,3 +6,5 @@
  *Лабораторная работа №2* - **Ветка : [lw02-grammar-transformations](https://github.com/bauer318/bmstu-compilers-building/tree/lw02-grammar-transformations)**
 
  *Лабораторная работа №3* - **Ветка : [lw03-recursive-descent-parsing](https://github.com/bauer318/bmstu-compilers-building/tree/lw03-recursive-descent-parsing)**
+
+*Лабораторная работа №4* - **Ветка : [lw04-syntax-directed-translation](https://github.com/bauer318/bmstu-compilers-building/tree/lw04-syntax-directed-translation)**
